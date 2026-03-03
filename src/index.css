@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Zalando+Sans+Expanded:ital,wght@0,200..900;1,200..900&display=swap');
+
+:root {
+  --color-primary: #ff6b4a; /* Vibrant Orange */
+  --color-primary-light: #ff9e7a;
+  --color-secondary: #000000;
+  --color-bg-light: #fffde8;
+  --color-bg-gradient-start: #ff7e5f;
+  --color-bg-gradient-end: #feb47b;
+  --color-text-main: #1a1a1a;
+  --color-accent: #ffb400; /* Gold/Yellow details */
+
+  /* --font-light: 'TimunLight', sans-serif;
+  --font-extra-light: 'TimunExtraLight', sans-serif;
+  --font-main: 'TimunSemi', sans-serif;
+  --font-main-light: 'TimunMed', sans-serif; */
+  --font-main: 'Zalando Sans Expanded', sans-serif;
+  --font-secondary: 'Poppins', sans-serif; /* only 600 font-weight*/
+  --font-stylish: 'SelfWritten', sans-serif;
+
+  --font-display: var(--font-main);
+  --font-script: var(--font-stylish);
+  /* --font-body: 'Inter', sans-serif; */
+
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+
+  --border-radius: 12px;
+}
+
+/* @font-face {
+  font-family: 'TimunExtraLight';
+  src: url('./fonts/Timun-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TimunLight';
+  src: url('./fonts/Timun-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TimunMed';
+  src: url('./fonts/Timun-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TimunSemi';
+  src: url('./fonts/Timun-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+} */
+@font-face {
+  font-family: 'SelfWritten';
+  src: url('./fonts/SelfWritten-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-main);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Utilities */
+.justify-center {
+  justify-content: center;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}

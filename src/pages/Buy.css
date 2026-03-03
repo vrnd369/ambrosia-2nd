@@ -1,0 +1,300 @@
+.buy-page {
+  width: 100%;
+}
+
+.buy-hero {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding: 80px 12% 60px;
+  box-sizing: border-box;
+}
+
+.buy-hero-title {
+  margin: 0;
+  font-size: clamp(40px, 5.5vw, 65px);
+  line-height: 1.1;
+  color: #fff;
+  font-family: var(--font-main), sans-serif;
+  font-weight: 900;
+}
+
+.buy-hero-subtitle {
+  font-family: var(--font-main), sans-serif;
+  font-size: clamp(16px, 1.8vw, 15px);
+  font-weight: 300;
+  color: #fff;
+  margin-top: 0.3rem;
+  letter-spacing: 0.5px;
+}
+
+.buy-carousel-section {
+  padding: 5rem 0 7rem;
+  margin-top: 6rem;
+  background-color: #ffffff;
+}
+
+.buy-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.buy-carousel-viewport {
+  width: 100%;
+  padding: 3rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.buy-carousel-track {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px !important;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+}
+
+.buy-carousel-slide {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100% !important; /* override any lingering JS/inline styles */
+}
+
+.buy-carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 16px;
+  display: block;
+}
+
+/* ---------- Product Info (price + name) ---------- */
+.product-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.2rem 0;
+  font-family: var(--font-main), sans-serif;
+}
+
+.product-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.2px;
+}
+
+.product-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+/* ---------- Product Actions Row (counter + add-to-cart) ---------- */
+.product-actions {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+/* Pill-shaped quantity counter */
+.product-qty-control {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 50px;
+  overflow: hidden;
+  background-color: #fff;
+  flex-shrink: 0;
+  animation: fadeInQty 0.25s ease;
+}
+
+@keyframes fadeInQty {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.product-qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #f5f5f5;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  transition: background-color 0.15s ease;
+  user-select: none;
+  font-family: var(--font-main), sans-serif;
+}
+
+.product-qty-btn:hover {
+  background-color: #e8e8e8;
+}
+
+.product-qty-btn:active {
+  background-color: #ddd;
+}
+
+.product-qty-value {
+  min-width: 28px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  padding: 0 2px;
+  background-color: #fff;
+  font-family: var(--font-main), sans-serif;
+}
+
+/* ---------- Add to Cart Button ---------- */
+.buy-add-to-cart {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background-color: #080808;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  box-sizing: border-box;
+  font-family: var(--font-main), sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  border-radius: 18px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.buy-add-to-cart:hover {
+  background-color: #2b2b2b;
+  transform: translateY(-2px);
+}
+
+.buy-add-to-cart--added {
+  background-color: #2ecc71;
+  pointer-events: none;
+}
+
+/* ==============================================
+   RESPONSIVE
+   ============================================== */
+@media (max-width: 1024px) {
+  .buy-hero {
+    padding: 80px 8% 60px;
+  }
+
+  .buy-carousel-section {
+    padding: 2rem 0 4rem;
+    margin-top: 0;
+  }
+
+  .buy-carousel-track {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px !important;
+    padding: 0 5%;
+  }
+
+  .buy-carousel-slide {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .buy-hero {
+    padding: 0 5%;
+    height: 80vh;
+  }
+
+  .buy-add-to-cart {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+  .buy-carousel-wrapper {
+    padding: 0 1rem;
+  }
+  .product-info {
+    padding: 0.4rem 0.1rem 0;
+  }
+  .product-name {
+    font-size: 0.8rem;
+  }
+  .product-price {
+    font-size: 0.85rem;
+  }
+  .product-qty-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+  .product-qty-value {
+    min-width: 24px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .buy-hero {
+    height: 70vh;
+  }
+
+  .buy-carousel-track {
+    grid-template-columns: 1fr;
+    gap: 20px !important;
+    padding: 0 20px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .buy-add-to-cart {
+    padding: 0.7rem;
+    font-size: 0.8rem;
+    gap: 0.6rem;
+  }
+  .product-name {
+    font-size: 0.75rem;
+  }
+  .product-price {
+    font-size: 0.8rem;
+  }
+  .product-actions {
+    gap: 0.4rem;
+  }
+  .product-qty-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
+  }
+  .product-qty-value {
+    min-width: 20px;
+    font-size: 0.75rem;
+  }
+}

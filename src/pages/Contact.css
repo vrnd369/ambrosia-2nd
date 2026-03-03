@@ -1,0 +1,252 @@
+.contact-page {
+  position: relative;
+  width: 100%;
+}
+
+.contact-hero {
+  min-height: 120vh;
+  width: 100%;
+  background-size: cover;
+  background-size: 200% 200%;
+  background-position: 15% 0%;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 80px;
+  padding-bottom: 80px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
+}
+
+.contact-content-wrapper {
+  max-width: 1200px;
+  width: 90%;
+  text-align: center;
+  z-index: 10;
+}
+
+.contact-title {
+  color: #fff;
+  font-family: var(--font-main);
+  font-size: clamp(3rem, 6vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.contact-subtitle {
+  color: #fff;
+  font-family: var(--font-main);
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  letter-spacing: 0.5px;
+}
+
+.contact-cards-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 6rem;
+  width: 100%;
+  max-width: 1050px;
+  min-height: 320px;
+  margin: 0 auto;
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.6); /* Frosty pink-white tint as in image */
+  border: 2px solid white;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-left {
+  gap: 1rem;
+}
+
+.card-right {
+  gap: 0.5rem;
+}
+
+.contact-text {
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #000;
+  margin: 0;
+}
+
+.contact-bold {
+  font-weight: 500;
+}
+
+.contact-card-title {
+  font-family: var(--font-main);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: 0.5px;
+}
+
+.text-light {
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.contact-link {
+  color: #ef4e24;
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  margin-top: 0.3rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.contact-link:hover {
+  color: #c93a17;
+  transform: scale(1.1);
+}
+
+/* FAQ Section */
+.contact-faq-section {
+  width: 100%;
+  background-color: #fff;
+  padding: 6rem 2rem;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.contact-faq-container {
+  width: 100%;
+  max-width: 850px;
+  display: flex;
+  flex-direction: column;
+  margin-right: 12rem;
+  gap: 1rem;
+}
+
+.faq-main-title {
+  color: #ef4e24;
+  font-family: var(--font-main);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  margin-left: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.faq-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.faq-question {
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #000;
+  margin: 0;
+}
+
+.faq-answer {
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #000;
+  margin: 0;
+  line-height: 2.2;
+}
+
+@media (max-width: 1024px) {
+  .contact-faq-container {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 850px) {
+  .contact-hero {
+    min-height: 100vh;
+    padding: 80px 2rem 60px;
+  }
+
+  .contact-cards-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+  .contact-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 3rem 1.5rem;
+  }
+  .contact-title {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-hero {
+    min-height: 100vh;
+    padding: 70px 1rem 40px;
+  }
+
+  .contact-title {
+    font-size: 2.5rem;
+  }
+
+  .contact-subtitle {
+    font-size: 1rem;
+  }
+
+  .contact-cards-container {
+    gap: 1.5rem;
+    min-height: auto;
+  }
+
+  .contact-card {
+    padding: 2rem 1rem;
+    max-width: 100%;
+    min-height: 180px;
+  }
+
+  .contact-card-title {
+    font-size: 1.8rem;
+  }
+
+  .contact-text,
+  .text-light,
+  .contact-link {
+    font-size: 0.95rem;
+  }
+
+  .contact-faq-section {
+    padding: 60px 1.5rem 80px;
+  }
+
+  .faq-main-title {
+    font-size: 2.2rem;
+  }
+
+  .faq-question,
+  .faq-answer {
+    font-size: 1rem;
+  }
+}
