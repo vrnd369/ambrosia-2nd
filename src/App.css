@@ -26,7 +26,7 @@
 }
 
 /* -----------------------------------------------
-   SECTION 1 - Hero (s-1.png)
+   SECTION 1 - Hero (s-1.webp)
    ----------------------------------------------- */
 /* No extra styles needed — uses shared fullimg */
 
@@ -37,19 +37,16 @@
 .eye-section {
   position: relative;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
 }
 
 .eye-container {
   width: 100%;
-  height: 100%;
 }
 
 .eye-panel {
   width: 100%;
   height: 100vh;
-  background: #ffffff; /* 🤍 white background for each slide */
+  background: transparent;
 
   display: flex;
   align-items: center;
@@ -293,16 +290,20 @@
 /* --- Section 5 multi-card carousel --- */
 .s5-carousel-wrapper {
   position: relative;
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1300px;
+  /* margin: 0 auto; */
+  margin: 0 0 0 auto;
   padding: 0 2rem;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
 .s5-carousel-viewport {
   width: 100%;
-  /* overflow: hidden; */
+  overflow: hidden;
   border-radius: 16px;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .s5-carousel-track {
@@ -314,27 +315,13 @@
 
 .s5-carousel-slide {
   flex-shrink: 0;
-  min-width: 320px;
-  /* width is set in JS now – remove or override the min-width */
-  /* min-width: ... → remove or set to 0 */
+  /* width is set in JS */
   height: 500px;
   border-radius: 16px;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-}
-
-/* Optional: nicer snap on touch devices */
-@media (hover: none) and (pointer: coarse) {
-  .s5-carousel-viewport {
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-  .s5-carousel-slide {
-    scroll-snap-align: center;
-  }
 }
 
 .s5-image-wrapper {
@@ -495,7 +482,7 @@
 }
 
 .s5-carousel-btn--right {
-  right: 0.5rem;
+  right: 15%;
 }
 
 .section-seven {
@@ -596,6 +583,11 @@
 
 .s7-icon-text:hover {
   transform: scale(1.1);
+}
+@media (max-width: 1300px) {
+  .s5-carousel-btn--right {
+    right: 0.5rem;
+  }
 }
 
 @media (max-width: 900px) {
@@ -804,6 +796,13 @@
   font-size: 3rem;
   font-weight: 900;
   color: #fff;
+  transition: transform 0.3s ease;
+  cursor: default;
+  display: inline-block;
+}
+
+.s8-subtitle:hover {
+  transform: scale(1.1);
 }
 
 @media (max-width: 900px) {
@@ -920,17 +919,17 @@
 }
 
 /* -----------------------------------------------
-   SECTION 6 - The Vibe (s-6.png)
+   SECTION 6 - The Vibe (s-6.webp)
    ----------------------------------------------- */
 /* No extra styles needed — uses shared fullimg */
 
 /* -----------------------------------------------
-   SECTION 7 - What's Inside (s-7.png)
+   SECTION 7 - What's Inside (s-7.webp)
    ----------------------------------------------- */
 /* No extra styles needed — uses shared fullimg */
 
 /* -----------------------------------------------
-   SECTION 8 - What's Not Inside (s-8.png)
+   SECTION 8 - What's Not Inside (s-8.webp)
    ----------------------------------------------- */
 /* No extra styles needed — uses shared fullimg */
 
@@ -939,8 +938,9 @@
    ----------------------------------------------- */
 .section-ten {
   width: 100%;
-  padding: 2rem 0;
+  padding: 3rem 0;
   overflow: hidden;
+  background-color: #fff
 }
 
 .marquee {
@@ -971,10 +971,10 @@
 
 @keyframes marquee-scroll {
   0% {
-    transform: translateX(0);
+    transform: translateX(-100%);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(0);
   }
 }
 
@@ -1106,38 +1106,25 @@
   height: 42px;
 }
 
-.s11-carousel-btn {
+.s11-carousel-btn--left {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;
-  background-color: #ef4e24 !important; /* Orange background */
-  border: none !important;
-  opacity: 1 !important;
-  width: 56px;
-  height: 56px;
-  box-shadow: 0 4px 12px rgba(239, 78, 36, 0.3);
-}
-
-.s11-carousel-btn svg {
-  width: 28px;
-  height: 28px;
-  stroke: #ffffff;
-  stroke-width: 2.5px;
-}
-
-.s11-carousel-btn:hover {
-  background-color: #d63a12 !important;
-  transform: translateY(-50%) scale(1.1);
-  border-color: transparent !important;
-}
-
-.s11-carousel-btn--left {
   left: 1rem;
+  z-index: 10;
 }
 
 .s11-carousel-btn--right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   right: 1rem;
+  z-index: 10;
+}
+
+.s11-carousel-btn--left:hover,
+.s11-carousel-btn--right:hover {
+  transform: translateY(-50%) scale(1.08);
 }
 
 .s11-carousel-dots {
@@ -1164,6 +1151,18 @@
 }
 
 @media (max-width: 1024px) {
+  .s11-carousel-viewport {
+    overflow: hidden;
+    cursor: grab;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .s11-carousel-viewport:active {
+    cursor: grabbing;
+  }
+
   .s11-carousel-track {
     gap: 20px;
   }
@@ -1172,6 +1171,10 @@
   }
   .s11-card {
     padding: 2rem 1.5rem 2rem 1.5rem;
+  }
+  .s11-card:hover {
+    transform: none;
+    z-index: 1;
   }
   .s11-card-tagline {
     font-size: 2.8rem;
@@ -1211,7 +1214,7 @@
    ----------------------------------------------- */
 .section-twelve {
   /* background: linear-gradient(135deg, #ff6b4a 0%, #ff8c66 50%, #ff9b7a 100%); */
-  /* background-image: url('./assets/s-12.png'); */
+  /* background-image: url('./assets/s-12.webp'); */
   background: linear-gradient(89.88deg, #f57621 -51.01%, #e25f5d 99.89%);
   padding: 5rem 0 2rem;
   color: #fff;
@@ -1335,6 +1338,74 @@
 .footer-subscribe-btn:hover {
   background: #222;
   transform: translateY(-2px);
+}
+
+.footer-subscribe-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.footer-input-error {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.25);
+  background-color: rgba(255, 107, 107, 0.05);
+  animation: shake 0.4s ease;
+}
+
+.footer-form-error {
+  color: #ffd5d5;
+  font-size: 0.82rem;
+  margin-top: 0.5rem;
+  font-family: var(--font-main);
+  letter-spacing: 0.3px;
+}
+
+.footer-subscribe-success {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  padding: 0.9rem 1.6rem;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: fadeInUp 0.5s ease;
+}
+
+.footer-success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  color: #22c55e;
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .footer-divider {
@@ -1604,6 +1675,7 @@
 
   /* -- S5 Carousel -- */
   .s5-carousel-wrapper {
+    margin: 0 auto;
     padding: 0 1rem;
   }
 
@@ -1627,20 +1699,6 @@
 
   .s11-carousel-slide {
     min-width: calc((100% - 16px) / 1.8);
-  }
-
-  .s11-carousel-btn {
-    width: 44px;
-    height: 44px;
-  }
-
-  .s11-carousel-btn svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .nine-tagline span {
-    /* margin-left: -20px; */
   }
 
   /* -- Marquee -- */
@@ -1779,13 +1837,25 @@
     padding: 0 0.75rem;
   }
 
+  .s5-carousel-btn {
+    display: flex;
+  }
+
   .s5-carousel-track {
     gap: 12px;
   }
 
   .s5-carousel-slide {
-    /* min-width: calc(100% - 40px); */
     height: 280px;
+  }
+
+  .s5-carousel-dots {
+    margin-top: 1.5rem;
+  }
+
+  .s5-carousel-dot {
+    width: 8px;
+    height: 8px;
   }
 
   /* -- S11 Carousel -- */
@@ -1803,16 +1873,6 @@
     /* min-width: calc(100% - 40px); */
     width: 100%;
     height: auto;
-  }
-
-  .s11-carousel-btn {
-    width: 38px;
-    height: 38px;
-  }
-
-  .s11-carousel-btn svg {
-    width: 18px;
-    height: 18px;
   }
 
   .section-eleven .carousel-tagline .tagline-first,

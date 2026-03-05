@@ -47,7 +47,10 @@ import sharp from 'sharp';
 const inputDir = process.argv[2] ? path.resolve(process.argv[2]) : process.cwd();
 
 const IMAGE_EXTENSIONS = ['.webp', '.webp', '.webp'];
-const CODE_FILE_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx', '.json', '.html', '.css', '.scss', '.md'];
+const CODE_FILE_EXTENSIONS = [
+  '.js', '.jsx', '.ts', '.tsx',
+  '.json', '.html', '.css', '.scss', '.md'
+];
 
 async function processDirectory(directory) {
   const files = fs.readdirSync(directory);
@@ -65,7 +68,10 @@ async function processDirectory(directory) {
 
     // Convert images → WebP
     else if (IMAGE_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
-      const outputPath = path.join(directory, `${path.parse(file).name}.webp`);
+      const outputPath = path.join(
+        directory,
+        `${path.parse(file).name}.webp`
+      );
 
       console.log(`Converting: ${fullPath}`);
 

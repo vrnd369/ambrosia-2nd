@@ -1,12 +1,12 @@
 import React from 'react';
-import s8Left from '../assets/s-8-left.png';
-import s8Right from '../assets/s-8-right.png';
+import s8Left from '../assets/s-8-left.webp';
+import s8Right from '../assets/s-8-right.webp';
 
 function SectionEight() {
   return (
     <section className="section-eight split-layout">
       <div className="s8-left" data-aos="fade-right" data-aos-once="false">
-        <img src={s8Left} alt="What's Not Inside Left" className="s8-bg" />
+        <img src={s8Left} alt="What's Not Inside Left" className="s8-bg" loading="lazy" />
         
         <div className="s8-content-container">
           <div className="s8-title">
@@ -40,7 +40,7 @@ function SectionEight() {
       </div>
 
       <div className="s8-right" data-aos="fade-left" data-aos-once="false">
-        <img src={s8Right} alt="What's Not Inside Right" className="s8-bg" />
+        <img src={s8Right} alt="What's Not Inside Right" className="s8-bg" loading="lazy" />
       </div>
     </section>
   );

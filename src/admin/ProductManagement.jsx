@@ -2,10 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import imageCompression from 'browser-image-compression';
 import { supabase } from '../supabaseClient';
 import './Admin.css';
-import p1 from '../assets/p-11.png';
-import p2 from '../assets/p-22.png';
-import p3 from '../assets/p-33.png';
-import p4 from '../assets/p-44.png';
+import p1 from '../assets/p-11.webp';
+import p2 from '../assets/p-22.webp';
+import p3 from '../assets/p-33.webp';
+import p4 from '../assets/p-44.webp';
 
 // Fallback Default Products
 const DEFAULT_PRODUCTS = [

@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './About.css';
-import colourfulGradient from '../assets/colourful-gradient.jpg';
-import twoCan from '../assets/two-can.png';
-import circleOverlay from '../assets/circle-overlay.png';
-import Why1 from '../assets/why-1.png';
-import Why2 from '../assets/why-2.png';
-import Why3 from '../assets/why-3.png';
-import Why4 from '../assets/why-4.png';
+import colourfulGradient from '../assets/colourful-gradient.webp';
+import twoCan from '../assets/two-can.webp';
+import circleOverlay from '../assets/circle-overlay.webp';
+import Why1 from '../assets/why-1.webp';
+import Why2 from '../assets/why-2.webp';
+import Why3 from '../assets/why-3.webp';
+import Why4 from '../assets/why-4.webp';
 
 export default function About() {
   const parallaxRefs = useRef([]);
@@ -101,7 +101,7 @@ export default function About() {
                 <img
                   loading="lazy"
                   src={Why1}
-                  style={{ width: '380px' }}
+                  className="why-img-1"
                   alt="Our Story - celestial illustration"
                 />
               </div>
@@ -117,7 +117,7 @@ export default function About() {
                 <img
                   loading="lazy"
                   src={Why2}
-                  style={{ width: '450px' }}
+                  className="why-img-2"
                   alt="What Ambrosia is - colorful illustration"
                 />
               </div>
@@ -177,7 +177,7 @@ export default function About() {
                 <img
                   loading="lazy"
                   src={Why3}
-                  style={{ width: '320px' }}
+                  className="why-img-3"
                   alt="What Ambrosia isn't - bull mascot"
                 />
               </div>
@@ -225,7 +225,7 @@ export default function About() {
                 <img
                   loading="lazy"
                   src={Why4}
-                  style={{ width: '250px' }}
+                  className="why-img-4"
                   alt="How does it work - spinning top"
                 />
               </div>

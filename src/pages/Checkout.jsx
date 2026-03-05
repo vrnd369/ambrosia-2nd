@@ -53,7 +53,7 @@ export default function Checkout() {
             currency: 'INR',
             name: 'Ambrosia',
             description: 'Premium Hydration Services',
-            image: 'https://i.imgur.com/your-logo.png', // Optional logo
+            image: 'https://i.imgur.com/your-logo.webp', // Optional logo
             handler: async function (response) {
                 // Success Callback
                 try {

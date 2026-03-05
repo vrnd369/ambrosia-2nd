@@ -1,4 +1,4 @@
-import s1 from '../assets/s-1.png';
+import s1 from '../assets/s-1.webp';
 
 function SectionOne() {
   return (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Eye from '../assets/eye.png';
-import EyeBlink from '../assets/eye-blink.png';
+import Eye from '../assets/eye.webp';
+import EyeBlink from '../assets/eye-blink.webp';
 
 export default function EyeCursor() {
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -42,13 +42,21 @@ export default function EyeCursor() {
   return (
     <>
       <style>{`
-        body {
-          cursor: ${hide ? 'auto' : 'none'};
+        @media (min-width: 1025px) {
+          body {
+            cursor: ${hide ? 'auto' : 'none'};
+          }
+        }
+        @media (max-width: 1024px) {
+          .custom-eye-cursor {
+            display: none !important;
+          }
         }
       `}</style>
 
       {!hide && (
         <div
+          className="custom-eye-cursor"
           style={{
             position: 'fixed',
             left: pos.x,

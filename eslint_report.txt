@@ -1,0 +1,219 @@
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\admin\OrderManagement.jsx
+  10:9  error  Error: Cannot access variable before it is declared
+
+`fetchOrders` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+   8 |
+   9 |     useEffect(() => {
+> 10 |         fetchOrders();
+     |         ^^^^^^^^^^^ `fetchOrders` accessed before it is declared
+  11 |     }, []);
+  12 |
+  13 |     const fetchOrders = async () => {
+
+  11 |     }, []);
+  12 |
+> 13 |     const fetchOrders = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 14 |         setLoading(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 15 |         const { data, error } = await supabase.from('orders').select('*, users(email)').order('created_at', { ascending: false });
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 16 |         if (!error && data) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 17 |             setOrders(data);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 18 |         }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 19 |         setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 20 |     };
+     | ^^^^^^^ `fetchOrders` is declared here
+  21 |
+  22 |     return (
+  23 |         <div className="admin-page">  react-hooks/immutability
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\admin\ProductManagement.jsx
+  36:9  error  Error: Cannot access variable before it is declared
+
+`fetchProducts` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  34 |
+  35 |     useEffect(() => {
+> 36 |         fetchProducts();
+     |         ^^^^^^^^^^^^^ `fetchProducts` accessed before it is declared
+  37 |     }, []);
+  38 |
+  39 |     const fetchProducts = async () => {
+
+  37 |     }, []);
+  38 |
+> 39 |     const fetchProducts = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |         setLoading(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |         const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |         if (!error && data) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 43 |             setProducts(data);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 44 |         }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 45 |         setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 46 |     };
+     | ^^^^^^^ `fetchProducts` is declared here
+  47 |
+  48 |     const handleSyncFromMainSite = async () => {
+  49 |         if (!window.confirm('This will insert default products to Supabase. Proceed?')) return;  react-hooks/immutability
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\admin\UserManagement.jsx
+  10:9  error  Error: Cannot access variable before it is declared
+
+`fetchUsers` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+   8 |
+   9 |     useEffect(() => {
+> 10 |         fetchUsers();
+     |         ^^^^^^^^^^ `fetchUsers` accessed before it is declared
+  11 |     }, []);
+  12 |
+  13 |     const fetchUsers = async () => {
+
+  11 |     }, []);
+  12 |
+> 13 |     const fetchUsers = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 14 |         setLoading(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 15 |         const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 16 |         if (!error && data) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 17 |             setUsers(data);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 18 |         }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 19 |         setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 20 |     };
+     | ^^^^^^^ `fetchUsers` is declared here
+  21 |
+  22 |     return (
+  23 |         <div className="admin-page">  react-hooks/immutability
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\components\ProductCarousel.jsx
+  30:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  28 |     const mq = window.matchMedia('(max-width: 1024px)');
+  29 |     const handler = (e) => setIsMobile(e.matches);
+> 30 |     setIsMobile(mq.matches);
+     |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  31 |     mq.addEventListener('change', handler);
+  32 |     return () => mq.removeEventListener('change', handler);
+  33 |   }, []);  react-hooks/set-state-in-effect
+  37:20  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  35 |   // Reset slide index when switching to desktop
+  36 |   useEffect(() => {
+> 37 |     if (!isMobile) setSlideIndex(0);
+     |                    ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |   }, [isMobile]);
+  39 |
+  40 |   // Apply translateX when slideIndex changes (mobile only)                                                    react-hooks/set-state-in-effect
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\components\SectionEleven.jsx
+  46:9  error    'getCardsVisible' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                no-unused-vars
+  64:9  warning  The 'prev' function makes the dependencies of useCallback Hook (at line 115) change on every render. To fix this, wrap the definition of 'prev' in its own useCallback() Hook  react-hooks/exhaustive-deps
+  65:9  warning  The 'next' function makes the dependencies of useCallback Hook (at line 115) change on every render. To fix this, wrap the definition of 'next' in its own useCallback() Hook  react-hooks/exhaustive-deps
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\components\SectionTwelve.jsx
+  58:13  error  'response' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\context\AuthContext.jsx
+   45:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+   74:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  236:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\context\CartContext.jsx
+    9:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  143:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\pages\Auth.jsx
+  44:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  42 |   useEffect(() => {
+  43 |     clearError();
+> 44 |     setTouched({});
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |     setFieldErrors({});
+  46 |     setSubmitAttempted(false);
+  47 |     setShowPassword(false);  react-hooks/set-state-in-effect
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\pages\Cart.jsx
+  8:71  error  'totalItems' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\ashish\Downloads\ambrosia-1.2\src\pages\Community.jsx
+  72:43  error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. This value was memoized in source but not in compilation output.
+
+  70 |   }, []);
+  71 |
+> 72 |   const handleFeedTouchMove = useCallback((e) => {
+     |                                           ^^^^^^^^
+> 73 |     if (!feedIsDragging.current || !feedTrackRef.current) return;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 74 |     const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |     feedTrackRef.current.style.transform = `translateX(${base + feedTouchDeltaX.current}px)`;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |   }, [feedSlideIndex]);
+     | ^^^^ Could not preserve existing memoization
+  83 |
+  84 |   const handleFeedTouchEnd = useCallback(() => {
+  85 |     if (!feedIsDragging.current) return;  react-hooks/preserve-manual-memoization
+  84:42  error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. This value was memoized in source but not in compilation output.
+
+   82 |   }, [feedSlideIndex]);
+   83 |
+>  84 |   const handleFeedTouchEnd = useCallback(() => {
+      |                                          ^^^^^^^
+>  85 |     if (!feedIsDragging.current) return;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  86 |     feedIsDragging.current = false;
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 103 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 104 |   }, [feedGoNext, feedGoPrev, feedSlideIndex]);
+      | ^^^^ Could not preserve existing memoization
+  105 |
+  106 |   return (
+  107 |     <div className="community-page">                                                                                                                                                                                                                     react-hooks/preserve-manual-memoization
+
+✖ 18 problems (16 errors, 2 warnings)
+

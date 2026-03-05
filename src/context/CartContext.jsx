@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 
-import p1 from '../assets/p-11.png';
-import p2 from '../assets/p-22.png';
-import p3 from '../assets/p-33.png';
-import p4 from '../assets/p-44.png';
+import p1 from '../assets/p-11.webp';
+import p2 from '../assets/p-22.webp';
+import p3 from '../assets/p-33.webp';
+import p4 from '../assets/p-44.webp';
 
 // Default product data
 export const DEFAULT_PRODUCTS = [

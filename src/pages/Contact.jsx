@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import './Contact.css';
-import colourfulGrad from '../assets/colourful-gradient.jpg';
+import colourfulGrad from '../assets/colourful-gradient.webp';
 
 export default function Contact() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location]);
   return (
     <div className="contact-page">
       <section className="contact-hero" style={{ backgroundImage: `url(${colourfulGrad})` }}>
@@ -35,7 +48,7 @@ export default function Contact() {
       </section>
 
       {/* FAQ Section */}
-      <section className="contact-faq-section">
+      <section id="faq" className="contact-faq-section">
         <div className="contact-faq-container">
           <h2 className="faq-main-title">FAQ's</h2>
 

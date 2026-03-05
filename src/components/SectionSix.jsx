@@ -1,4 +1,4 @@
-import s6 from '../assets/s-6.png';
+import s6 from '../assets/s-6.webp';
 
 function SectionSix() {
   return (

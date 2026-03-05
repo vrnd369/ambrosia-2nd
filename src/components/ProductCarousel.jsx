@@ -1,21 +1,108 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { PRODUCTS, useCart } from '../context/CartContext';
 
 /**
  * Shared product carousel used by both SectionNine (home) and Buy page.
  * Accepts optional props for AOS animations and layout overrides.
+ *
+ * Above 1024px  → CSS grid (4-col), no carousel behaviour.
+ * Below 1024px  → horizontal swipeable carousel with prev/next buttons.
  */
 export default function ProductCarousel({ withAos = false, wrapperStyle = {}, sectionStyle = {} }) {
   const trackRef = useRef(null);
   const viewportRef = useRef(null);
-  const { addToCart, updateQuantity, items, products } = useCart();
+  const { addToCart, updateQuantity, items } = useCart();
 
   // Track "just added" animation per product
   const [justAdded, setJustAdded] = useState({});
 
+  // --- Mobile carousel state ---
+  const [isMobile, setIsMobile] = useState(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const touchStartX = useRef(0);
+  const touchDeltaX = useRef(0);
+  const isDragging = useRef(false);
+
+  // Detect mobile breakpoint
   useEffect(() => {
-    // Relying on pure CSS Grid instead of manual JS widths
+    const mq = window.matchMedia('(max-width: 1024px)');
+    const handler = (e) => setIsMobile(e.matches);
+    setIsMobile(mq.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
   }, []);
+
+  // Reset slide index when switching to desktop
+  useEffect(() => {
+    if (!isMobile) setSlideIndex(0);
+  }, [isMobile]);
+
+  // Apply translateX when slideIndex changes (mobile only)
+  useEffect(() => {
+    if (!isMobile || !trackRef.current) return;
+    const slide = trackRef.current.querySelector('.buy-carousel-slide');
+    if (!slide) return;
+    const trackStyles = window.getComputedStyle(trackRef.current);
+    const gap = parseFloat(trackStyles.gap) || 20;
+    const slideWidth = slide.offsetWidth + gap;
+    trackRef.current.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
+  }, [slideIndex, isMobile]);
+
+  const totalSlides = PRODUCTS.length;
+
+  const goPrev = useCallback(() => {
+    setSlideIndex(prev => Math.max(prev - 1, 0));
+  }, []);
+
+  const goNext = useCallback(() => {
+    setSlideIndex(prev => Math.min(prev + 1, totalSlides - 1));
+  }, [totalSlides]);
+
+  // --- Touch / pointer handlers ---
+  const handleTouchStart = useCallback((e) => {
+    if (!isMobile) return;
+    isDragging.current = true;
+    touchStartX.current = e.touches ? e.touches[0].clientX : e.clientX;
+    touchDeltaX.current = 0;
+    if (trackRef.current) trackRef.current.style.transition = 'none';
+  }, [isMobile]);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isMobile || !isDragging.current || !trackRef.current) return;
+    const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+    touchDeltaX.current = currentX - touchStartX.current;
+    const slide = trackRef.current.querySelector('.buy-carousel-slide');
+    if (!slide) return;
+    const trackStyles = window.getComputedStyle(trackRef.current);
+    const gap = parseFloat(trackStyles.gap) || 20;
+    const slideWidth = slide.offsetWidth + gap;
+    const base = -(slideIndex * slideWidth);
+    trackRef.current.style.transform = `translateX(${base + touchDeltaX.current}px)`;
+  }, [isMobile, slideIndex]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isMobile || !isDragging.current) return;
+    isDragging.current = false;
+    if (trackRef.current) trackRef.current.style.transition = 'transform 0.4s cubic-bezier(0.22,1,0.36,1)';
+    const threshold = 50;
+    if (touchDeltaX.current < -threshold) {
+      goNext();
+    } else if (touchDeltaX.current > threshold) {
+      goPrev();
+    } else {
+      // Snap back
+      setSlideIndex(prev => prev);
+      if (trackRef.current) {
+        const slide = trackRef.current.querySelector('.buy-carousel-slide');
+        if (slide) {
+          const trackStyles = window.getComputedStyle(trackRef.current);
+          const gap = parseFloat(trackStyles.gap) || 20;
+          const slideWidth = slide.offsetWidth + gap;
+          trackRef.current.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
+        }
+      }
+    }
+  }, [isMobile, goNext, goPrev, slideIndex]);
 
   const handleAddToCart = product => {
     addToCart(product);
@@ -34,15 +121,39 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
   return (
     <div className="buy-carousel-section" style={sectionStyle}>
       <div className="buy-carousel-wrapper" style={wrapperStyle}>
-        <div className="buy-carousel-viewport" ref={viewportRef}>
+        {/* Left arrow – mobile only */}
+        {isMobile && (
+          <button
+            className="buy-carousel-btn buy-carousel-btn--left"
+            onClick={goPrev}
+            disabled={slideIndex === 0}
+            aria-label="Previous product"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18L9 12L15 6" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+
+        <div
+          className="buy-carousel-viewport"
+          ref={viewportRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleTouchStart}
+          onMouseMove={handleTouchMove}
+          onMouseUp={handleTouchEnd}
+          onMouseLeave={handleTouchEnd}
+        >
           <div className="buy-carousel-track" ref={trackRef}>
-            {products.map((product, i) => {
+            {PRODUCTS.map((product, i) => {
               const qty = getQuantity(product.id);
               const isAdded = justAdded[product.id];
 
               const slideContent = (
                 <>
-                  <img src={product.image} alt={product.name} draggable="false" />
+                  <img src={product.image} alt={product.name} draggable="false" loading="lazy" />
                   <div className="product-info">
                     <span className="product-name">{product.description}</span>
                     <span className="product-price">₹{product.price.toFixed(2)}</span>
@@ -112,7 +223,35 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
             })}
           </div>
         </div>
+
+        {/* Right arrow – mobile only */}
+        {isMobile && (
+          <button
+            className="buy-carousel-btn buy-carousel-btn--right"
+            onClick={goNext}
+            disabled={slideIndex === totalSlides - 1}
+            aria-label="Next product"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6L15 12L9 18" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
       </div>
+
+      {/* Dot indicators – mobile only */}
+      {isMobile && (
+        <div className="buy-carousel-dots">
+          {PRODUCTS.map((_, i) => (
+            <button
+              key={i}
+              className={`buy-carousel-dot ${i === slideIndex ? 'buy-carousel-dot--active' : ''}`}
+              onClick={() => setSlideIndex(i)}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

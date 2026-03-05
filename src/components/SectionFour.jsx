@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import videoBg from '../assets/product-teaser.mp4';
+import { Link } from 'react-router-dom';
 import cartIcon from '../assets/cart-icon.svg';
 
 function SectionFour() {
   const sectionRef = useRef(null);
+  const videoRef = useRef(null);
   const [isFixed, setIsFixed] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,21 @@ function SectionFour() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lazy-load the 22MB video only when section enters viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !videoLoaded) {
+          setVideoLoaded(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' } // Start loading 200px before visible
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [videoLoaded]);
+
   const handleWhatsAppClick = (e) => {
     e.preventDefault();
     const phoneNumber = "9000179900";
@@ -38,9 +55,11 @@ function SectionFour() {
 
   return (
     <section className="s4-container" ref={sectionRef}>
-      <video className="s4-video-bg" autoPlay loop muted playsInline>
-        <source src={videoBg} type="video/mp4" />
-      </video>
+      {videoLoaded && (
+        <video ref={videoRef} className="s4-video-bg" autoPlay loop muted playsInline preload="none">
+          <source src={new URL('../assets/product-teaser.mp4', import.meta.url).href} type="video/mp4" />
+        </video>
+      )}
       <div className="s4-content-card">
         {/* <img className='s4-logo' src={Logo} alt="ambrosia logo" /> */}
         <h3 className="s4-title">
@@ -54,12 +73,12 @@ function SectionFour() {
           No caffeine. No alcohol.<br />
           Just you, but steadier.
         </p>
-        <button className="s4-read-more-btn-new">Read more..</button>
+        <Link to="/about" className="s4-read-more-btn-new">Read more..</Link>
       </div>
 
       <div className={`s4-floating-wrapper ${isFixed ? 'fixed' : 'absolute'}`}>
         <a href="/buy" className="floating-shop-btn">
-          <img src={cartIcon} alt="Cart" className="cart-icon" />
+          <img src={cartIcon} alt="Cart" className="cart-icon" loading="lazy" />
           SHOP NOW
         </a>
         

@@ -2,32 +2,32 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 const reviews = [
   {
     tagline: 'life changing.',
-    desc: 'i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that’s done no good for me, hiyos are truly a godsend.',
+    desc: `i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that's done no good for me, hiyos are truly a godsend.`,
     rating: 4.5,
   },
   {
     tagline: 'life changing.',
-    desc: 'i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that’s done no good for me, hiyos are truly a godsend.',
+    desc: `i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that's done no good for me, hiyos are truly a godsend.`,
     rating: 4.5,
   },
   {
     tagline: 'life changing.',
-    desc: 'i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that’s done no good for me, hiyos are truly a godsend.',
+    desc: `i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that's done no good for me, hiyos are truly a godsend.`,
     rating: 4.5,
   },
   {
     tagline: 'life changing.',
-    desc: 'i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that’s done no good for me, hiyos are truly a godsend.',
+    desc: `i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that's done no good for me, hiyos are truly a godsend.`,
     rating: 4.5,
   },
   {
     tagline: 'life changing.',
-    desc: 'i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that’s done no good for me, hiyos are truly a godsend.',
+    desc: `i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that's done no good for me, hiyos are truly a godsend.`,
     rating: 4.5,
   },
   {
     tagline: 'life changing.',
-    desc: 'i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that’s done no good for me, hiyos are truly a godsend.',
+    desc: `i love everything about these drinks. i quit alcohol cold turkey and my wife decided to join me... i turned her onto hiyo and she fell in love. to know that i have a sober support system and an alternative to something that's done no good for me, hiyos are truly a godsend.`,
     rating: 4.5,
   },
 ];
@@ -37,6 +37,11 @@ function SectionEleven() {
 
   const trackRef = useRef(null);
   const viewportRef = useRef(null);
+
+  // Touch / swipe refs
+  const touchStartX = useRef(0);
+  const touchDeltaX = useRef(0);
+  const isDragging = useRef(false);
 
   const getCardsVisible = useCallback(() => {
     if (typeof window === 'undefined') return 2.5;
@@ -50,26 +55,64 @@ function SectionEleven() {
     return Math.max(0, reviews.length - 1);
   }, []);
 
+  const isMobile = useCallback(() => {
+    return typeof window !== 'undefined' && window.innerWidth <= 1024;
+  }, []);
+
   const dotsCount = reviews.length;
 
   const prev = () => setCurrent(c => Math.max(0, c - 1));
   const next = () => setCurrent(c => Math.min(getMaxIndex(), c + 1));
 
-  const updatePosition = useCallback(() => {
-    if (!trackRef.current || !viewportRef.current) return;
-
+  /** Compute the base translateX offset for a given slide index */
+  const getBaseOffset = useCallback(() => {
+    if (!trackRef.current) return 0;
     const trackStyles = window.getComputedStyle(trackRef.current);
     const gap = parseFloat(trackStyles.gap) || 0;
-
     const firstCard = trackRef.current.firstElementChild;
     const cardWidth = firstCard ? firstCard.offsetWidth : 0;
-
-    if (cardWidth === 0) return;
-
-    const targetOffset = current * (cardWidth + gap);
-
-    trackRef.current.style.transform = `translateX(-${targetOffset}px)`;
+    if (cardWidth === 0) return 0;
+    return current * (cardWidth + gap);
   }, [current]);
+
+  const updatePosition = useCallback(() => {
+    if (!trackRef.current || !viewportRef.current) return;
+    trackRef.current.style.transform = `translateX(-${getBaseOffset()}px)`;
+  }, [getBaseOffset]);
+
+  // --- Touch / pointer handlers ---
+  const handleTouchStart = useCallback((e) => {
+    if (!isMobile()) return;
+    isDragging.current = true;
+    touchStartX.current = e.touches ? e.touches[0].clientX : e.clientX;
+    touchDeltaX.current = 0;
+    if (trackRef.current) trackRef.current.style.transition = 'none';
+  }, [isMobile]);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isMobile() || !isDragging.current || !trackRef.current) return;
+    const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+    touchDeltaX.current = currentX - touchStartX.current;
+    const base = -getBaseOffset();
+    trackRef.current.style.transform = `translateX(${base + touchDeltaX.current}px)`;
+  }, [isMobile, getBaseOffset]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isMobile() || !isDragging.current) return;
+    isDragging.current = false;
+    if (trackRef.current) {
+      trackRef.current.style.transition = 'transform 0.5s cubic-bezier(0.22,1,0.36,1)';
+    }
+    const threshold = 50;
+    if (touchDeltaX.current < -threshold) {
+      next();
+    } else if (touchDeltaX.current > threshold) {
+      prev();
+    } else {
+      // Snap back to current position
+      updatePosition();
+    }
+  }, [isMobile, next, prev, updatePosition]);
 
   // ✅ update when slide changes
   useEffect(() => {
@@ -98,15 +141,15 @@ function SectionEleven() {
         {current > 0 && (
           <button
             type="button"
-            className="carousel-btn s11-carousel-btn s11-carousel-btn--left"
+            className="carousel-btn s11-carousel-btn--left"
             onClick={prev}
             aria-label="Previous slide"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M15 18L9 12L15 6"
-                stroke="currentColor"
-                strokeWidth="2"
+                stroke="#fff"
+                strokeWidth="1"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -114,7 +157,17 @@ function SectionEleven() {
           </button>
         )}
 
-        <div className="s11-carousel-viewport" ref={viewportRef}>
+        <div
+          className="s11-carousel-viewport"
+          ref={viewportRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleTouchStart}
+          onMouseMove={handleTouchMove}
+          onMouseUp={handleTouchEnd}
+          onMouseLeave={handleTouchEnd}
+        >
           <div className="s11-carousel-track" ref={trackRef}>
             {reviews.map((review, i) => (
               <div className="s11-carousel-slide" key={i}>
@@ -151,15 +204,15 @@ function SectionEleven() {
         {current < getMaxIndex() && (
           <button
             type="button"
-            className="carousel-btn s11-carousel-btn s11-carousel-btn--right"
+            className="carousel-btn s11-carousel-btn--right"
             onClick={next}
             aria-label="Next slide"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M9 18L15 12L9 6"
-                stroke="currentColor"
-                strokeWidth="2"
+                stroke="#fff"
+                strokeWidth="1"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -188,3 +241,4 @@ function SectionEleven() {
 }
 
 export default SectionEleven;
+

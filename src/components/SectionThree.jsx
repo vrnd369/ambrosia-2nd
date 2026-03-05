@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import s3 from '../assets/s-3.jpg';
+import s3 from '../assets/s-3.webp';
 import './SectionThreeNavbar.css';
 import '../pages/Auth.css';
 
@@ -100,7 +100,7 @@ function SectionThree() {
   return (
     <section className="section-three" ref={sectionRef}>
       {/* Background image */}
-      <img src={s3} alt="Cola Drama Background" className="section-fullimg" />
+      <img src={s3} alt="Ambrosia Drink Background" className="section-fullimg" />
 
       {/* Navbar wrapper — keeps space reserved when the bar is fixed */}
       <div className="s3-navbar-wrapper" style={navMode === 'fixed' ? { height: placeholderH } : undefined}>

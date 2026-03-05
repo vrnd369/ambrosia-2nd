@@ -27,7 +27,7 @@
 //     const frameCount = 40;
 
 //     const currentFrame = (index) =>
-//       `/eye-seq/eye_${String(index).padStart(4, "0")}.png`;
+//       `/eye-seq/eye_${String(index).padStart(4, "0")}.webp`;
 
 //     const images = [];
 //     const eye = { frame: 0 };
@@ -80,7 +80,7 @@
 //       <div className="eye-wrapper">
 //         <img
 //           ref={imgRef}
-//           src="/eye-seq/eye_0000.png"
+//           src="/eye-seq/eye_0000.webp"
 //           alt="Ambrosia Eye"
 //           className="section-fullimg"
 //         />
@@ -104,7 +104,7 @@
 //   useEffect(() => {
 //     const frameCount = 80; // 👈 UPDATED (was 40)
 
-//     const currentFrame = index => `/eye-seq/eye_${String(index).padStart(4, '0')}.png`;
+//     const currentFrame = index => `/eye-seq/eye_${String(index).padStart(4, '0')}.webp`;
 
 //     const images = [];
 //     const eye = { frame: 0 };
@@ -153,7 +153,7 @@
 //   return (
 //     <section className="section-two" ref={sectionRef} id='eye'>
 //       <div className="eye-wrapper">
-//         <img ref={imgRef} src="/eye-seq/eye_0000.png" alt="Ambrosia Eye" className="section-fullimg" />
+//         <img ref={imgRef} src="/eye-seq/eye_0000.webp" alt="Ambrosia Eye" className="section-fullimg" />
 //       </div>
 //     </section>
 //   );
@@ -177,21 +177,39 @@ function SectionTwo() {
 
   useEffect(() => {
     const panels = gsap.utils.toArray('.eye-panel');
+    const triggers = [];
 
-    gsap.to(panels, {
-      yPercent: -100 * (panels.length - 1),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: sectionRef.current,
+    panels.forEach((panel, i) => {
+      if (i === panels.length - 1) return;
+
+      const st = ScrollTrigger.create({
+        trigger: panel,
+        start: 'top top',
         pin: true,
-        scrub: 1,
-        snap: 1 / (panels.length - 1),
-        end: () => '+=' + window.innerHeight * panels.length,
-      },
+        pinSpacing: false,
+        end: () => `+=${panel.offsetHeight * (panels.length - i - 1)}`,
+      });
+      triggers.push(st);
+
+      // Fade out this panel as the next one scrolls from bottom to top
+      const nextPanel = panels[i + 1];
+      if (nextPanel) {
+        const fadeTween = gsap.to(panel, {
+          opacity: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: nextPanel,
+            start: 'top bottom',
+            end: 'top top',
+            scrub: true,
+          },
+        });
+        triggers.push(fadeTween.scrollTrigger);
+      }
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
+      triggers.forEach(t => t.kill());
     };
   }, []);
 
