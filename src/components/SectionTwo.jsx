@@ -217,16 +217,16 @@ function SectionTwo() {
     <section ref={sectionRef} id="eye" className="eye-section">
       <div className="eye-container">
         <div className="eye-panel">
-          <img src={Eye0} alt="Eye 0" />
+          <img src={Eye0} alt="Eye 0" loading="lazy" decoding="async" />
         </div>
         <div className="eye-panel">
-          <img src={Eye1} alt="Eye 1" />
+          <img src={Eye1} alt="Eye 1" loading="lazy" decoding="async" />
         </div>
         <div className="eye-panel">
-          <img src={Eye2} alt="Eye 2" />
+          <img src={Eye2} alt="Eye 2" loading="lazy" decoding="async" />
         </div>
         <div className="eye-panel">
-          <img src={Eye3} alt="Eye 3" />
+          <img src={Eye3} alt="Eye 3" loading="lazy" decoding="async" />
         </div>
       </div>
     </section>

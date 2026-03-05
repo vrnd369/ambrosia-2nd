@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { supabase } from '../supabaseClient';
+import { fetchWithCoalescing, getCachedData, setCachedData } from '../utils/supabaseFetch.js';
 import './Community.css';
 import './About.css';
 import communityBg from '../assets/community.webp';
@@ -6,7 +8,77 @@ import community1 from '../assets/community-1.webp';
 import community2 from '../assets/community-2.webp';
 import communityGroup from '../assets/community-group.webp';
 
-const FEED_ITEMS = [0, 1, 2, 3]; // placeholder feed items
+const FEED_CACHE_KEY = 'instagram_feed';
+
+function UploadedVideoPlayer({ src }) {
+  const videoRef = React.useRef(null);
+  const [muted, setMuted] = React.useState(true);
+
+  React.useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = muted;
+  }, [muted]);
+
+  return (
+    <div className="community-feed-video-wrap">
+      <video
+        ref={videoRef}
+        src={src}
+        className="community-feed-video"
+        muted
+        loop
+        playsInline
+        autoPlay
+        preload="metadata"
+      />
+      <button
+        type="button"
+        className="community-feed-mute-btn"
+        onClick={() => setMuted(m => !m)}
+        aria-label={muted ? 'Unmute' : 'Mute'}
+      >
+        {muted ? (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        ) : (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function toEmbedUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  const m = url.match(/instagram\.com\/(reel|p)\/([A-Za-z0-9_-]+)/);
+  return m ? `https://www.instagram.com/${m[1]}/${m[2]}/embed/?hidecaption=1` : null;
+}
+
+function FeedItem({ item }) {
+  if (item.source_type === 'upload') {
+    return <UploadedVideoPlayer src={item.video_url} />;
+  }
+  const embedUrl = toEmbedUrl(item.video_url);
+  if (!embedUrl) return <div className="community-feed-placeholder">Invalid link</div>;
+  return (
+    <div className="community-feed-iframe-wrap">
+      <iframe
+        src={embedUrl}
+        className="community-feed-iframe"
+        title={item.caption || 'Instagram'}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
+}
 
 export default function Community() {
   const parallaxRefs = useRef([]);
@@ -18,8 +90,25 @@ export default function Community() {
   const feedTouchStartX = useRef(0);
   const feedTouchDeltaX = useRef(0);
   const feedIsDragging = useRef(false);
+  const [feedItems, setFeedItems] = useState([]);
 
-  const totalFeedSlides = FEED_ITEMS.length;
+  useEffect(() => {
+    const cached = getCachedData(FEED_CACHE_KEY);
+    if (cached) {
+      setFeedItems(cached);
+      return;
+    }
+    fetchWithCoalescing(FEED_CACHE_KEY, () =>
+      supabase.from('instagram_feed').select('id,source_type,video_url,caption,sort_order').order('sort_order', { ascending: true })
+    ).then(({ data, error }) => {
+      if (!error && data?.length) {
+        setCachedData(FEED_CACHE_KEY, data);
+        setFeedItems(data);
+      }
+    });
+  }, []);
+
+  const totalFeedSlides = feedItems.length || 1;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +147,7 @@ export default function Community() {
   }, []);
 
   const feedGoNext = useCallback(() => {
-    setFeedSlideIndex(prev => Math.min(prev + 1, totalFeedSlides - 1));
+    setFeedSlideIndex(prev => Math.min(prev + 1, Math.max(0, totalFeedSlides - 1)));
   }, [totalFeedSlides]);
 
   // --- Touch / pointer handlers for feed carousel ---
@@ -115,7 +204,7 @@ export default function Community() {
           </h1>
         </div>
         <div className="community-hero-right" data-aos="fade-left" data-aos-once="false" data-aos-anchor=".community-hero">
-          <img loading="lazy" src={communityGroup} alt="Ambroooooosians Community" className="community-group-img" />
+          <img loading="lazy" decoding="async" src={communityGroup} alt="Ambroooooosians Community" className="community-group-img" />
         </div>
       </section>
 
@@ -126,7 +215,7 @@ export default function Community() {
           <div className="why-block-container container-5">
             <div className="why-block why-block--right">
               <div className="why-block__image" ref={setParallaxRef(0)}>
-                <img loading="lazy" src={community1} className="community-img-1" alt="Peace Hand" />
+                <img loading="lazy" decoding="async" src={community1} className="community-img-1" alt="Peace Hand" />
               </div>
               <div className="why-block__content content-2" data-aos="fade-left">
                 <h2 className="why-block__title t-4">
@@ -189,7 +278,7 @@ export default function Community() {
                 </ul>
               </div>
               <div className="why-block__image" ref={setParallaxRef(1)}>
-                <img loading="lazy" src={community2} className="community-img-2" alt="Butterfly" />
+                <img loading="lazy" decoding="async" src={community2} className="community-img-2" alt="Butterfly" />
               </div>
             </div>
           </div>
@@ -239,17 +328,25 @@ export default function Community() {
             onMouseLeave={handleFeedTouchEnd}
           >
             <div className="community-feed-grid" ref={feedTrackRef}>
-              {FEED_ITEMS.map((_, i) => (
-                <div
-                  className="community-feed-item"
-                  key={i}
-                  data-aos="fade-left"
-                  data-aos-delay={i * 150}
-                  data-aos-duration="1000"
-                  data-aos-easing="ease-out-cubic"
-                  data-aos-once="true"
-                ></div>
-              ))}
+              {feedItems.length > 0 ? (
+                feedItems.map((item, i) => (
+                  <div
+                    className="community-feed-item"
+                    key={item.id}
+                    data-aos="fade-left"
+                    data-aos-delay={i * 150}
+                    data-aos-duration="1000"
+                    data-aos-easing="ease-out-cubic"
+                    data-aos-once="true"
+                  >
+                    <FeedItem item={item} />
+                  </div>
+                ))
+              ) : (
+                <div className="community-feed-item community-feed-placeholder">
+                  <span>Add videos in Admin → Instagram Feed</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -268,7 +365,7 @@ export default function Community() {
 
         {/* Dot indicators */}
         <div className="community-feed-dots">
-          {FEED_ITEMS.map((_, i) => (
+          {(feedItems.length || 1) > 0 && Array.from({ length: Math.max(feedItems.length, 1) }).map((_, i) => (
             <button
               key={i}
               className={`community-feed-dot ${i === feedSlideIndex ? 'community-feed-dot--active' : ''}`}

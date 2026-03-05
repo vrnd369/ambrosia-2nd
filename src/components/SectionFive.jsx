@@ -244,7 +244,7 @@ function SectionFive() {
             {ingredients.map((item, i) => (
               <div className="s5-carousel-slide" key={i}>
                 <div className="s5-image-wrapper">
-                  <img src={item.img} alt={`Ingredient ${i + 1}`} loading="lazy" />
+                  <img src={item.img} alt={`Ingredient ${i + 1}`} loading="lazy" decoding="async" />
                 </div>
                 <div
                   className={`s5-card ${expandedIndex === i ? 'expanded' : ''}`}

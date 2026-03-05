@@ -6,7 +6,7 @@ function SectionEight() {
   return (
     <section className="section-eight split-layout">
       <div className="s8-left" data-aos="fade-right" data-aos-once="false">
-        <img src={s8Left} alt="What's Not Inside Left" className="s8-bg" loading="lazy" />
+        <img src={s8Left} alt="What's Not Inside Left" className="s8-bg" loading="lazy" decoding="async" />
         
         <div className="s8-content-container">
           <div className="s8-title">
@@ -40,7 +40,7 @@ function SectionEight() {
       </div>
 
       <div className="s8-right" data-aos="fade-left" data-aos-once="false">
-        <img src={s8Right} alt="What's Not Inside Right" className="s8-bg" loading="lazy" />
+        <img src={s8Right} alt="What's Not Inside Right" className="s8-bg" loading="lazy" decoding="async" />
       </div>
     </section>
   );

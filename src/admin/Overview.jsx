@@ -14,12 +14,18 @@ export default function Overview() {
     const fetchStats = async () => {
         try {
             setLoading(true);
-            const { count: usersCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
-            const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-            const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
+            const { count: usersCount } = await supabase.from('users').select('id', { count: 'exact', head: true });
+            const { count: ordersCount } = await supabase.from('orders').select('id', { count: 'exact', head: true });
+            const { count: productsCount } = await supabase.from('products').select('id', { count: 'exact', head: true });
 
-            const { data: orders } = await supabase.from('orders').select('total_amount');
-            const revenue = orders ? orders.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0) : 0;
+            let revenue = 0;
+            const { data: revenueData, error: rpcError } = await supabase.rpc('get_total_revenue');
+            if (!rpcError && revenueData != null) {
+                revenue = Number(revenueData);
+            } else if (rpcError) {
+                const { data: orders } = await supabase.from('orders').select('total_amount');
+                revenue = orders ? orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0) : 0;
+            }
 
             setStats({
                 users: usersCount || 0,

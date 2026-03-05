@@ -10,7 +10,7 @@ function SectionSeven() {
   return (
     <section className="section-seven split-layout">
       <div className="s7-left" data-aos="fade-right" data-aos-once="false">
-        <img src={s7Left} alt="What's Inside Left" className="s7-bg" loading="lazy" />
+        <img src={s7Left} alt="What's Inside Left" className="s7-bg" loading="lazy" decoding="async" />
       </div>
 
       <div className="s7-right" data-aos="fade-left" data-aos-once="false">
@@ -23,7 +23,7 @@ function SectionSeven() {
           </div>
           
           <div className="s7-icon-row">
-            <img src={focusIcon} alt="Focus" loading="lazy" />
+            <img src={focusIcon} alt="Focus" loading="lazy" decoding="async" />
             <span className="s7-icon-text">Focus</span>
           </div>
           <div className="s7-icon-row">
@@ -31,11 +31,11 @@ function SectionSeven() {
             <span className="s7-icon-text">Clarity</span>
           </div>
           <div className="s7-icon-row">
-            <img src={calmnessIcon} alt="Calmness" loading="lazy" />
+            <img src={calmnessIcon} alt="Calmness" loading="lazy" decoding="async" />
             <span className="s7-icon-text">Calmness</span>
           </div>
           <div className="s7-icon-row">
-            <img src={stillnessIcon} alt="Stillness" loading="lazy" />
+            <img src={stillnessIcon} alt="Stillness" loading="lazy" decoding="async" />
             <span className="s7-icon-text">Stillness</span>
           </div>
         </div>

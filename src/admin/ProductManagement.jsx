@@ -1,11 +1,37 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+
 import imageCompression from 'browser-image-compression';
 import { supabase } from '../supabaseClient';
+import { invalidateCache } from '../utils/supabaseFetch.js';
+import { debounce } from '../utils/debounce.js';
 import './Admin.css';
 import p1 from '../assets/p-11.webp';
 import p2 from '../assets/p-22.webp';
 import p3 from '../assets/p-33.webp';
 import p4 from '../assets/p-44.webp';
+
+// Map product id to default image for fallback
+const DEFAULT_IMAGES = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
+
+const isStorageUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
+
+// Product image with fallback when URL fails, empty, or is base64
+function ProductImage({ product }) {
+  const [imgError, setImgError] = useState(false);
+  const url = product.image_url;
+  const src = isStorageUrl(url) && !imgError ? url : (DEFAULT_IMAGES[product.id] || p1);
+  return (
+    <img
+      src={src}
+      alt={product.name}
+      loading="lazy"
+      decoding="async"
+      onError={() => setImgError(true)}
+    />
+  );
+}
+
+const PRODUCT_IMAGES_BUCKET = 'product-images';
 
 // Fallback Default Products
 const DEFAULT_PRODUCTS = [
@@ -36,9 +62,12 @@ export default function ProductManagement() {
         fetchProducts();
     }, []);
 
+    const debouncedRefresh = useMemo(() => debounce(() => fetchProducts(), 400), []);
+    const debouncedSync = useMemo(() => debounce(() => handleSyncFromMainSite(), 400), []);
+
     const fetchProducts = async () => {
         setLoading(true);
-        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('products').select('id,name,description,price,image_url').order('created_at', { ascending: false });
         if (!error && data) {
             setProducts(data);
         }
@@ -46,32 +75,36 @@ export default function ProductManagement() {
     };
 
     const handleSyncFromMainSite = async () => {
-        if (!window.confirm('This will insert default products to Supabase. Proceed?')) return;
+        if (!window.confirm('This will insert or update products in Supabase. Proceed?')) return;
         setLoading(true);
 
         for (const prod of DEFAULT_PRODUCTS) {
-            // Check if product with this id already exists to avoid duplicates
-            const { data: existing } = await supabase.from('products').select('id').eq('id', prod.id).maybeSingle();
+            const { data: existing } = await supabase.from('products').select('id, image_url').eq('id', prod.id).maybeSingle();
+            const imageUrl = typeof prod.image === 'string' ? prod.image : (prod.image?.src || prod.image);
             if (!existing) {
                 await supabase.from('products').insert({
                     id: prod.id,
                     name: prod.name,
                     description: prod.description,
                     price: prod.price,
-                    image_url: prod.image,
+                    image_url: imageUrl || '',
                 });
+            } else if (!isStorageUrl(existing.image_url)) {
+                await supabase.from('products').update({ image_url: imageUrl || '' }).eq('id', prod.id);
             }
         }
 
         await fetchProducts();
-        alert('Synced products from main site context!');
+        alert('Synced products from main site!');
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this product?')) return;
         setLoading(true);
         await supabase.from('products').delete().eq('id', id);
-        await fetchProducts();
+        invalidateCache('products_list');
+        setProducts(prev => prev.filter(p => p.id !== id));
+        setLoading(false);
     };
 
     const handleOpenModal = (product = null) => {
@@ -109,22 +142,27 @@ export default function ProductManagement() {
         };
 
         if (editingProduct) {
-            // Update
-            await supabase.from('products').update(payload).eq('id', editingProduct.id);
+            const { error } = await supabase.from('products').update(payload).eq('id', editingProduct.id);
+            if (!error) {
+                invalidateCache('products_list');
+                setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...payload } : p));
+                handleCloseModal();
+            }
         } else {
-            // Check existence to prevent duplicate ID crash on front-end
             const { data: existing } = await supabase.from('products').select('id').eq('id', payload.id).maybeSingle();
             if (existing) {
                 alert('Product ID already exists. Please choose another.');
                 setLoading(false);
                 return;
             }
-            // Insert
-            await supabase.from('products').insert(payload);
+            const { data: inserted, error } = await supabase.from('products').insert(payload).select('id,name,description,price,image_url').single();
+            if (!error && inserted) {
+                invalidateCache('products_list');
+                setProducts(prev => [inserted, ...prev]);
+                handleCloseModal();
+            }
         }
-
-        await fetchProducts();
-        handleCloseModal();
+        setLoading(false);
     };
 
     const handleImageUpload = async (e) => {
@@ -134,26 +172,36 @@ export default function ProductManagement() {
         try {
             setUploadingImage(true);
             const options = {
-                maxSizeMB: 0.019, // Strictly < 20kb
+                maxSizeMB: 0.03,
                 maxWidthOrHeight: 800,
                 useWebWorker: true,
-                initialQuality: 0.6
+                initialQuality: 0.75,
+                fileType: 'image/webp',
             };
 
             const compressedFile = await imageCompression(file, options);
+            const productId = formData.id || `temp-${Date.now()}`;
+            const filePath = `${productId}/${Date.now()}.webp`;
 
-            // Convert to base64 to store in text column. 
-            // In a real prod setup, we'd upload to Supabase Storage, 
-            // but base64 strings work for quick prototyping within limits.
-            const reader = new FileReader();
-            reader.readAsDataURL(compressedFile);
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, image_url: reader.result }));
-                setUploadingImage(false);
-            };
+            const { data, error } = await supabase.storage
+                .from(PRODUCT_IMAGES_BUCKET)
+                .upload(filePath, compressedFile, {
+                    upsert: true,
+                    contentType: 'image/webp',
+                    cacheControl: 'public, max-age=31536000, immutable',
+                });
+
+            if (error) throw error;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from(PRODUCT_IMAGES_BUCKET)
+                .getPublicUrl(data.path);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }));
         } catch (error) {
-            console.error('Error compressing image:', error);
-            alert('Failed to compress image.');
+            console.error('Error uploading image:', error);
+            alert(error?.message || 'Failed to upload image. Ensure the "product-images" bucket exists and is public.');
+        } finally {
             setUploadingImage(false);
         }
     };
@@ -166,10 +214,10 @@ export default function ProductManagement() {
                     <button className="admin-btn" onClick={() => handleOpenModal()} disabled={loading}>
                         Add New Product
                     </button>
-                    <button className="admin-btn" onClick={fetchProducts} disabled={loading}>
+                    <button className="admin-btn" onClick={debouncedRefresh} disabled={loading}>
                         Refresh
                     </button>
-                    <button className="admin-btn" onClick={handleSyncFromMainSite} disabled={loading}>
+                    <button className="admin-btn" onClick={debouncedSync} disabled={loading}>
                         Sync from Main Site
                     </button>
                 </div>
@@ -191,7 +239,7 @@ export default function ProductManagement() {
                             products.map(product => (
                                 <tr key={product.id}>
                                     <td className="product-image-cell">
-                                        <img src={product.image_url} alt={product.name} />
+                                        <ProductImage product={product} />
                                     </td>
                                     <td>{product.name}</td>
                                     <td>{product.description}</td>
@@ -272,10 +320,10 @@ export default function ProductManagement() {
                                     ref={fileInputRef}
                                 />
                                 {uploadingImage && <p style={{ fontSize: '0.8rem', color: '#ed8936', marginTop: '4px' }}>Compressing image...</p>}
-                                {formData.image_url && !uploadingImage && (
+                                {isStorageUrl(formData.image_url) && !uploadingImage && (
                                     <div style={{ marginTop: '10px' }}>
                                         <p style={{ fontSize: '0.8rem', color: '#48bb78', marginBottom: '4px' }}>Image ready!</p>
-                                        <img src={formData.image_url} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px' }} />
+                                        <img src={formData.image_url} alt="Preview" loading="lazy" decoding="async" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px' }} />
                                     </div>
                                 )}
                             </div>

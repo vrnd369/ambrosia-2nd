@@ -12,7 +12,7 @@ export default function UserManagement() {
 
     const fetchUsers = async () => {
         setLoading(true);
-        const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('users').select('id,email,full_name,role,created_at').order('created_at', { ascending: false });
         if (!error && data) {
             setUsers(data);
         }

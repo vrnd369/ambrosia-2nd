@@ -68,7 +68,7 @@ export default function EyeCursor() {
             willChange: 'transform',
           }}
         >
-          <img src={blink ? EyeBlink : Eye} alt="cursor eye" style={{ width: '100%', height: '100%' }} />
+          <img src={blink ? EyeBlink : Eye} alt="cursor eye" decoding="async" style={{ width: '100%', height: '100%' }} />
         </div>
       )}
     </>

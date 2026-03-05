@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import p1 from '../assets/p-11.webp';
+import p2 from '../assets/p-22.webp';
+import p3 from '../assets/p-33.webp';
+import p4 from '../assets/p-44.webp';
 import './Cart.css';
+
+const DEFAULT_IMAGES = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
+
+const isValidImageUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
+
+function CartItemImage({ item }) {
+  const [imgError, setImgError] = useState(false);
+  const src = isValidImageUrl(item.image) && !imgError ? item.image : (DEFAULT_IMAGES[item.id] || p1);
+  return <img src={src} alt={item.name} loading="lazy" decoding="async" onError={() => setImgError(true)} />;
+}
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, clearCart, subtotal, totalItems } = useCart();
@@ -52,7 +66,7 @@ export default function Cart() {
             {items.map((item) => (
               <div className="cart-item" key={item.id}>
                 <div className="cart-item-image">
-                  <img src={item.image} alt={item.name} />
+                  <CartItemImage item={item} />
                 </div>
                 <div className="cart-item-info">
                   <h3 className="cart-item-name">{item.name}</h3>
