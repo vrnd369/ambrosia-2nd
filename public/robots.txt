@@ -1,0 +1,23 @@
+# Ambrosia - Crawling rules (L2 security)
+# Allow search engines on public content; block sensitive areas.
+
+User-agent: *
+Allow: /
+# Block admin dashboard and login from all crawlers
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/login
+Disallow: /auth
+Disallow: /checkout
+Disallow: /order-history
+Disallow: /cart
+Disallow: /api/
+Disallow: /*.env
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Crawl-delay: optional; uncomment to throttle aggressive bots (not supported by Google)
+# Crawl-delay: 2
+
+# Sitemap (add your domain when ready)
+# Sitemap: https://yourdomain.com/sitemap.xml
