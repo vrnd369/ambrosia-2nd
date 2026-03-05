@@ -63,9 +63,9 @@ export default function About() {
         </div>
 
         <div className="about-hero-right">
-          <img loading="lazy" src={circleOverlay} alt="Overlay" className="circle-overlay" />
+          <img loading="lazy" decoding="async" src={circleOverlay} alt="Overlay" className="circle-overlay" />
           <div className="two-cans-wrapper" data-aos="fade-left" data-aos-once="false">
-            <img loading="lazy" src={twoCan} alt="Two Cans" className="two-cans" />
+            <img loading="lazy" decoding="async" src={twoCan} alt="Two Cans" className="two-cans" />
           </div>
         </div>
       </section>
@@ -100,6 +100,7 @@ export default function About() {
               <div className="why-block__image" ref={setParallaxRef(0)}>
                 <img
                   loading="lazy"
+                  decoding="async"
                   src={Why1}
                   className="why-img-1"
                   alt="Our Story - celestial illustration"
@@ -116,6 +117,7 @@ export default function About() {
               <div className="why-block__image" ref={setParallaxRef(1)}>
                 <img
                   loading="lazy"
+                  decoding="async"
                   src={Why2}
                   className="why-img-2"
                   alt="What Ambrosia is - colorful illustration"
@@ -224,6 +226,7 @@ export default function About() {
               <div className="why-block__image image-4" ref={setParallaxRef(3)}>
                 <img
                   loading="lazy"
+                  decoding="async"
                   src={Why4}
                   className="why-img-4"
                   alt="How does it work - spinning top"

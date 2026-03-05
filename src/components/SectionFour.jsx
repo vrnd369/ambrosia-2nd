@@ -78,7 +78,7 @@ function SectionFour() {
 
       <div className={`s4-floating-wrapper ${isFixed ? 'fixed' : 'absolute'}`}>
         <a href="/buy" className="floating-shop-btn">
-          <img src={cartIcon} alt="Cart" className="cart-icon" loading="lazy" />
+          <img src={cartIcon} alt="Cart" className="cart-icon" loading="lazy" decoding="async" />
           SHOP NOW
         </a>
         

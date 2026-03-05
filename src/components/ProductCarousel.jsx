@@ -1,5 +1,29 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { PRODUCTS, useCart } from '../context/CartContext';
+import { DEFAULT_PRODUCTS, useCart } from '../context/CartContext';
+import p1 from '../assets/p-11.webp';
+import p2 from '../assets/p-22.webp';
+import p3 from '../assets/p-33.webp';
+import p4 from '../assets/p-44.webp';
+
+const DEFAULT_IMAGES = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
+
+const isValidImageUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
+
+function ProductImage({ product }) {
+  const [imgError, setImgError] = useState(false);
+  const primary = product.image || product.image_url;
+  const src = isValidImageUrl(primary) && !imgError ? primary : (DEFAULT_IMAGES[product.id] || p1);
+  return (
+    <img
+      src={src}
+      alt={product.name}
+      draggable="false"
+      loading="lazy"
+      decoding="async"
+      onError={() => setImgError(true)}
+    />
+  );
+}
 
 /**
  * Shared product carousel used by both SectionNine (home) and Buy page.
@@ -11,7 +35,8 @@ import { PRODUCTS, useCart } from '../context/CartContext';
 export default function ProductCarousel({ withAos = false, wrapperStyle = {}, sectionStyle = {} }) {
   const trackRef = useRef(null);
   const viewportRef = useRef(null);
-  const { addToCart, updateQuantity, items } = useCart();
+  const { addToCart, updateQuantity, items, products } = useCart();
+  const displayProducts = products?.length > 0 ? products : DEFAULT_PRODUCTS;
 
   // Track "just added" animation per product
   const [justAdded, setJustAdded] = useState({});
@@ -48,7 +73,7 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
     trackRef.current.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
   }, [slideIndex, isMobile]);
 
-  const totalSlides = PRODUCTS.length;
+  const totalSlides = displayProducts.length;
 
   const goPrev = useCallback(() => {
     setSlideIndex(prev => Math.max(prev - 1, 0));
@@ -147,13 +172,13 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
           onMouseLeave={handleTouchEnd}
         >
           <div className="buy-carousel-track" ref={trackRef}>
-            {PRODUCTS.map((product, i) => {
+            {displayProducts.map((product, i) => {
               const qty = getQuantity(product.id);
               const isAdded = justAdded[product.id];
 
               const slideContent = (
                 <>
-                  <img src={product.image} alt={product.name} draggable="false" loading="lazy" />
+                  <ProductImage product={product} />
                   <div className="product-info">
                     <span className="product-name">{product.description}</span>
                     <span className="product-price">₹{product.price.toFixed(2)}</span>
@@ -242,7 +267,7 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
       {/* Dot indicators – mobile only */}
       {isMobile && (
         <div className="buy-carousel-dots">
-          {PRODUCTS.map((_, i) => (
+          {displayProducts.map((_, i) => (
             <button
               key={i}
               className={`buy-carousel-dot ${i === slideIndex ? 'buy-carousel-dot--active' : ''}`}

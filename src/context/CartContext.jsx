@@ -16,8 +16,10 @@ export const DEFAULT_PRODUCTS = [
 export const PRODUCTS = DEFAULT_PRODUCTS; // legacy export
 
 import { supabase } from '../supabaseClient';
+import { fetchWithCoalescing, getCachedData, setCachedData } from '../utils/supabaseFetch.js';
 
 const CartContext = createContext(null);
+const PRODUCTS_CACHE_KEY = 'products_list';
 const CART_STORAGE_KEY = 'ambrosia_cart_items';
 
 // Action types
@@ -86,13 +88,24 @@ export function CartProvider({ children }) {
 
   React.useEffect(() => {
     async function fetchProducts() {
-      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      const cached = getCachedData(PRODUCTS_CACHE_KEY);
+      if (cached) {
+        setProducts(cached);
+        return;
+      }
+
+      const { data, error } = await fetchWithCoalescing(PRODUCTS_CACHE_KEY, () =>
+        supabase.from('products').select('id,name,description,price,image_url').order('created_at', { ascending: false })
+      );
+
       if (!error && data && data.length > 0) {
-        // Map image_url back to image to match frontend logic
+        const defaults = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
+        const isValidUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
         const formattedProducts = data.map(p => ({
           ...p,
-          image: p.image_url || p1
+          image: isValidUrl(p.image_url) ? p.image_url : (defaults[p.id] || p1)
         }));
+        setCachedData(PRODUCTS_CACHE_KEY, formattedProducts);
         setProducts(formattedProducts);
       }
     }

@@ -141,7 +141,7 @@ function SectionTwelve() {
         <div className="footer-wrapper">
           {/* Logo */}
           <div className="footer-logo-wrapper">
-            <img src={logo} alt="Ambrosia" className="footer-logo" loading="lazy" />
+            <img src={logo} alt="Ambrosia" className="footer-logo" loading="lazy" decoding="async" />
           </div>
 
           {/* Big Footer Text */}

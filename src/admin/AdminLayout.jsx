@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingCart, Package } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingCart, Package, Trash2, Video } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminLayout() {
@@ -26,6 +26,14 @@ export default function AdminLayout() {
                     <NavLink to="/admin/products" className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}>
                         <Package size={20} />
                         <span>Product Management</span>
+                    </NavLink>
+                    <NavLink to="/admin/storage" className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}>
+                        <Trash2 size={20} />
+                        <span>Storage Cleanup</span>
+                    </NavLink>
+                    <NavLink to="/admin/instagram-feed" className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}>
+                        <Video size={20} />
+                        <span>Instagram Feed</span>
                     </NavLink>
                 </nav>
             </aside>

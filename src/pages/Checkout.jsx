@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import './Checkout.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function Checkout() {
     const { items, subtotal, clearCart } = useCart();
     const { user, isAuthenticated } = useAuth();
@@ -14,6 +16,7 @@ export default function Checkout() {
         phone: '',
         address: '',
         city: '',
+        state: '',
         pin: ''
     });
     const [loading, setLoading] = useState(false);
@@ -47,34 +50,120 @@ export default function Checkout() {
             return;
         }
 
+        let razorpayOrderId = null;
+        try {
+            const orderRes = await fetch(`${API_BASE}/api/razorpay/create-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: Math.round(subtotal * 100),
+                    currency: 'INR',
+                    receipt: `amb_${Date.now()}`,
+                }),
+            });
+            const orderJson = await orderRes.json().catch(() => ({}));
+            if (!orderRes.ok || !orderJson.order_id) {
+                throw new Error(orderJson.message || 'Could not create payment order');
+            }
+            razorpayOrderId = orderJson.order_id;
+        } catch (err) {
+            setLoading(false);
+            alert(err.message || 'Payment setup failed. Please try again.');
+            return;
+        }
+
         const options = {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-            amount: Math.round(subtotal * 100), // Amount in paise
+            order_id: razorpayOrderId,
             currency: 'INR',
             name: 'Ambrosia',
             description: 'Premium Hydration Services',
             image: 'https://i.imgur.com/your-logo.webp', // Optional logo
             handler: async function (response) {
-                // Success Callback
+                const orderItems = items.map(({ id, name, description, price, quantity, image }) => ({
+                    id, name, description, price, quantity,
+                    image: image && typeof image === 'string' && !image.startsWith('data:') ? image : null
+                }));
+
                 try {
-                    const { error } = await supabase.from('orders').insert({
+                    const verifyRes = await fetch(`${API_BASE}/api/razorpay/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            razorpay_order_id: response.razorpay_order_id || null,
+                        }),
+                    });
+                    const verifyJson = await verifyRes.json().catch(() => ({}));
+                    if (!verifyRes.ok || !verifyJson.success) {
+                        throw new Error(verifyJson.message || 'Payment verification failed');
+                    }
+
+                    const { data, error } = await supabase.from('orders').insert({
                         user_id: user.id,
                         total_amount: subtotal,
                         status: 'Paid',
                         payment_id: response.razorpay_payment_id,
-                        shipping_address: `${form.address}, ${form.city}, PIN: ${form.pin}`,
+                        shipping_address: `${form.address}, ${form.city}${form.state ? `, ${form.state}` : ''}, PIN: ${form.pin}`,
                         phone: form.phone,
-                        items: items
-                    });
+                        items: orderItems
+                    }).select('id').single();
 
                     if (error) throw error;
 
-                    alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+                    try {
+                        const srRes = await fetch(`${API_BASE}/api/shiprocket/create-order`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderId: data.id,
+                                buyer: {
+                                    name: user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || 'Customer',
+                                    email: user?.email,
+                                    phone: form.phone,
+                                    address: form.address,
+                                    city: form.city,
+                                    state: form.state,
+                                    pin: form.pin,
+                                },
+                                items: orderItems,
+                                subTotal: subtotal,
+                            }),
+                        });
+                        const srJson = await srRes.json().catch(() => ({}));
+                        if (!srRes.ok) throw new Error(srJson.message || 'Shiprocket order failed');
+                        const srData = srJson.data || srJson.order || srJson;
+                        const awb = srData.awb_code ?? srData.awb ?? null;
+                        const shipmentId = srData.shipment_id ?? null;
+                        const status = srData.status ?? null;
+                        if (awb || shipmentId || status) {
+                            const { error: upErr } = await supabase.from('orders').update({
+                                shiprocket_shipment_id: shipmentId,
+                                awb_code: awb,
+                                shipment_status: status,
+                            }).eq('id', data.id);
+                            if (upErr) console.warn('Could not update order with Shiprocket data:', upErr);
+                        }
+                    } catch (srErr) {
+                        console.error('Shiprocket order creation failed:', srErr);
+                        // Order is still saved - Shiprocket is best-effort
+                    }
+
+                    alert(`Payment Successful! Order #${data?.id?.slice(-8)?.toUpperCase() || ''}`);
                     clearCart();
-                    navigate('/'); // Route back to home upon success
+                    navigate('/');
                 } catch (err) {
-                    console.error('Failed to create order in database:', err);
-                    alert('Payment received but order tracking failed. Please contact support.');
+                    console.error('Checkout error:', err);
+                    const errMsg = err?.message || 'Unknown error';
+                    if (errMsg.includes('verification') || errMsg.includes('signature')) {
+                        alert(`Payment verification failed. Please contact support with Payment ID: ${response.razorpay_payment_id}`);
+                    } else if (errMsg.includes('insert') || errMsg.includes('order')) {
+                        alert(`Payment received but order could not be saved: ${errMsg}. Please contact support with Payment ID: ${response.razorpay_payment_id}`);
+                    } else {
+                        alert(`Payment received but something went wrong: ${errMsg}. Please contact support with Payment ID: ${response.razorpay_payment_id}`);
+                    }
+                    // Do NOT clear cart on error - user can retry
                 }
             },
             prefill: {
@@ -138,15 +227,24 @@ export default function Checkout() {
                                 />
                             </div>
                             <div className="half-group">
-                                <label>PIN Code</label>
+                                <label>State</label>
                                 <input
                                     type="text"
-                                    required
-                                    value={form.pin}
-                                    onChange={e => setForm({ ...form, pin: e.target.value })}
-                                    placeholder="6 digits"
+                                    value={form.state}
+                                    onChange={e => setForm({ ...form, state: e.target.value })}
+                                    placeholder="e.g. Telangana"
                                 />
                             </div>
+                        </div>
+                        <div className="form-group">
+                            <label>PIN Code</label>
+                            <input
+                                type="text"
+                                required
+                                value={form.pin}
+                                onChange={e => setForm({ ...form, pin: e.target.value })}
+                                placeholder="6 digits"
+                            />
                         </div>
 
                         <button type="submit" className="checkout-pay-btn" disabled={loading} id="pay-now-btn">

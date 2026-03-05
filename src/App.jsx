@@ -20,6 +20,7 @@ const Cart = React.lazy(() => import('./pages/Cart'));
 const Checkout = React.lazy(() => import('./pages/Checkout'));
 const Contact = React.lazy(() => import('./pages/Contact'));
 const Auth = React.lazy(() => import('./pages/Auth'));
+const OrderHistory = React.lazy(() => import('./pages/OrderHistory'));
 
 // ── Lazy-loaded admin pages (only loaded when admin visits) ──
 const AdminLayout = React.lazy(() => import('./admin/AdminLayout'));
@@ -27,6 +28,8 @@ const Overview = React.lazy(() => import('./admin/Overview'));
 const UserManagement = React.lazy(() => import('./admin/UserManagement'));
 const OrderManagement = React.lazy(() => import('./admin/OrderManagement'));
 const ProductManagement = React.lazy(() => import('./admin/ProductManagement'));
+const StorageCleanup = React.lazy(() => import('./admin/StorageCleanup'));
+const InstagramFeedManagement = React.lazy(() => import('./admin/InstagramFeedManagement'));
 
 // ── Lazy-loaded homepage sections (below-the-fold) ──
 import SectionOne from './components/SectionOne';
@@ -101,6 +104,7 @@ function App() {
                 <Route path="/buy" element={<Buy />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-history" element={<OrderHistory />} />
                 <Route path="/contact" element={<Contact />} />
               </Route>
               <Route path="/admin" element={<AdminLayout />}>
@@ -108,6 +112,8 @@ function App() {
                 <Route path="users" element={<UserManagement />} />
                 <Route path="orders" element={<OrderManagement />} />
                 <Route path="products" element={<ProductManagement />} />
+                <Route path="storage" element={<StorageCleanup />} />
+                <Route path="instagram-feed" element={<InstagramFeedManagement />} />
               </Route>
             </Routes>
           </Suspense>
