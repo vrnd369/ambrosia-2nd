@@ -9,6 +9,8 @@ const LOGOUT = 'LOGOUT';
 const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
 const CLEAR_ERROR = 'CLEAR_ERROR';
+const SET_USER_ROLE = 'SET_USER_ROLE';
+const SET_ROLE_LOADING = 'SET_ROLE_LOADING';
 
 function authReducer(state, action) {
   switch (action.type) {
@@ -19,6 +21,8 @@ function authReducer(state, action) {
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        userRole: null,
+        userRoleLoading: true,
       };
     case LOGOUT:
       return {
@@ -27,6 +31,8 @@ function authReducer(state, action) {
         isAuthenticated: false,
         isLoading: false,
         error: null,
+        userRole: null,
+        userRoleLoading: false,
       };
     case SET_LOADING:
       return { ...state, isLoading: action.payload };
@@ -34,6 +40,10 @@ function authReducer(state, action) {
       return { ...state, error: action.payload, isLoading: false };
     case CLEAR_ERROR:
       return { ...state, error: null };
+    case SET_USER_ROLE:
+      return { ...state, userRole: action.payload, userRoleLoading: false };
+    case SET_ROLE_LOADING:
+      return { ...state, userRoleLoading: action.payload };
     default:
       return state;
   }
@@ -98,9 +108,11 @@ export function AuthProvider({ children }) {
     isAuthenticated: false,
     isLoading: true,
     error: null,
+    userRole: null,
+    userRoleLoading: false,
   });
 
-  // Helper to sync user to custom table
+  // Helper to sync user to custom table (trigger sets role for admin email)
   const syncUserToTable = async (authUser) => {
     if (!authUser) return;
     try {
@@ -113,6 +125,32 @@ export function AuthProvider({ children }) {
       console.error('Failed to sync user to table:', err);
     }
   };
+
+  // Fetch user role from public.users when authenticated
+  useEffect(() => {
+    if (!state.user?.id) {
+      if (state.isAuthenticated) dispatch({ type: SET_ROLE_LOADING, payload: false });
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', state.user.id)
+          .single();
+        if (!cancelled && !error) {
+          dispatch({ type: SET_USER_ROLE, payload: data?.role || 'user' });
+        } else if (!cancelled) {
+          dispatch({ type: SET_USER_ROLE, payload: 'user' });
+        }
+      } catch {
+        if (!cancelled) dispatch({ type: SET_USER_ROLE, payload: 'user' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [state.user?.id, state.isAuthenticated]);
 
   // Restore session on mount
   useEffect(() => {
@@ -221,6 +259,8 @@ export function AuthProvider({ children }) {
         isAuthenticated: state.isAuthenticated,
         isLoading: state.isLoading,
         error: state.error,
+        isAdmin: state.userRole === 'admin',
+        userRoleLoading: state.userRoleLoading,
         login,
         signup,
         loginWithGoogle,

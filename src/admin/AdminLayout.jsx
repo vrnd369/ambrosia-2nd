@@ -1,9 +1,18 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingCart, Package, Trash2, Video } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, ShoppingCart, Package, Trash2, Video, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Admin.css';
 
 export default function AdminLayout() {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/admin/login', { replace: true });
+    };
+
     return (
         <div className="admin-layout">
             <aside className="admin-sidebar">
@@ -36,6 +45,12 @@ export default function AdminLayout() {
                         <span>Instagram Feed</span>
                     </NavLink>
                 </nav>
+                <div className="admin-sidebar-footer">
+                    <button type="button" className="admin-nav-link admin-logout-btn" onClick={handleLogout}>
+                        <LogOut size={20} />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </aside>
             <main className="admin-main-content">
                 <Outlet />
