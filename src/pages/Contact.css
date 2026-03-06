@@ -243,6 +243,8 @@
 
   .faq-main-title {
     font-size: 2.2rem;
+    margin-left: 0;
+    margin-bottom: 1rem;
   }
 
   .faq-question,

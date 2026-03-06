@@ -410,20 +410,32 @@
   /* Track becomes a flex row instead of grid */
   .buy-carousel-track {
     display: flex !important;
+    justify-content: flex-start !important; /* overrides desktop center alignment, ensuring exact left placement */
     grid-template-columns: unset !important;
     gap: 20px !important;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    width: max-content;
+    width: 100%;
     padding: 0 !important;
   }
 
-  /* Each slide fits fully within the visible viewport area */
+  /* Each slide fitting 2 items inside viewport to avoid oversized cards */
   .buy-carousel-slide {
-    /* viewport width minus wrapper padding (2×1rem), arrow widths (2×42px), arrow margins (2×0.5rem) */
-    min-width: calc(100vw - 2rem - 84px - 1rem);
-    max-width: calc(100vw - 2rem - 84px - 1rem);
+    flex: 0 0 calc(50% - 10px);
+    min-width: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+  }
+
+  .buy-add-to-cart {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .buy-add-to-cart svg {
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
-    width: auto !important;
   }
 
   /* --- Carousel nav buttons --- */
@@ -457,12 +469,9 @@
     pointer-events: none;
   }
 
-  .buy-carousel-btn--left {
-    margin-right: 0.5rem;
-  }
-
+  .buy-carousel-btn--left,
   .buy-carousel-btn--right {
-    margin-left: 0.5rem;
+    margin-inline: 0.5rem;
   }
 
   /* --- Dot indicators --- */
@@ -527,14 +536,14 @@
   }
 
   .buy-add-to-cart {
-    padding: 0.8rem;
-    font-size: 0.9rem;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+    gap: 0.4rem;
   }
 
-  .buy-carousel-slide {
-    /* viewport minus wrapper padding (2×1rem), arrow widths (2×36px), arrow margins (2×0.5rem) */
-    min-width: calc(100vw - 2rem - 72px - 1rem);
-    max-width: calc(100vw - 2rem - 72px - 1rem);
+  .buy-add-to-cart svg {
+    width: 20px;
+    height: 20px;
   }
 
   .product-info {
@@ -591,10 +600,14 @@
     font-size: 0.88rem;
   }
 
+  .buy-carousel-track {
+    width: 100%;
+  }
+
   .buy-carousel-slide {
-    /* viewport minus wrapper padding (2×1rem), arrow widths (2×32px), arrow margins (2×0.5rem) */
-    min-width: calc(100vw - 2rem - 64px - 1rem);
-    max-width: calc(100vw - 2rem - 64px - 1rem);
+    flex: 0 0 100%;
+    min-width: 100%;
+    max-width: 100%;
   }
 
   .buy-add-to-cart {
@@ -609,10 +622,6 @@
     font-size: 0.8rem;
   }
 
-  .product-info {
-    justify-content: center;
-    gap: 1rem;
-  }
   .product-actions {
     gap: 0.4rem;
   }

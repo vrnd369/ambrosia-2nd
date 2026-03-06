@@ -66,8 +66,8 @@ function SectionFive() {
   const getCardsVisible = useCallback(() => {
     if (typeof window === 'undefined') return 3.5;
     const w = window.innerWidth;
-    if (w <= 480) return 1.2;
-    if (w <= 768) return 1.8;
+    // if (w <= 480) return 1.2;
+    if (w <= 768) return 1;
     if (w <= 1024) return 2.5;
     return 3.5;
   }, []);

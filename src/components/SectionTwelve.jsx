@@ -55,7 +55,7 @@ function SectionTwelve() {
     setErrorMessage('');
 
     try {
-      const response = await fetch(GOOGLE_SHEET_URL, {
+      await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
         mode: 'no-cors', // Apps Script redirects; no-cors avoids CORS errors
         headers: { 'Content-Type': 'application/json' },

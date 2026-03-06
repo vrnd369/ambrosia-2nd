@@ -205,7 +205,7 @@ export default function Buy() {
       <ProductCarousel
         withAos={true}
         sectionStyle={{ padding: '2rem 0', backgroundColor: 'transparent' }}
-        wrapperStyle={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0.5rem' }}
+        wrapperStyle={{ maxWidth: '1240px', margin: '0 auto', padding: '0' }}
       />
     </div>
   );

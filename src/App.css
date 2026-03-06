@@ -337,7 +337,7 @@
 }
 
 .s5-image-wrapper img {
-  height: 180px;
+  height: 210px;
   width: 100%;
   /* max-height: 100%; */
   object-fit: contain;
@@ -467,6 +467,26 @@
 
   .s5-card.expanded {
     height: 180px;
+  }
+
+  .s5-image-wrapper img {
+    height: 180px;
+  }
+
+  .s5-image-wrapper {
+    bottom: 150px;
+  }
+
+  .s5-card {
+    width: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 480px) {
+  .s5-card {
+    width: 100%;
   }
 }
 
@@ -940,7 +960,7 @@
   width: 100%;
   padding: 3rem 0;
   overflow: hidden;
-  background-color: #fff
+  background-color: #fff;
 }
 
 .marquee {
@@ -1056,12 +1076,12 @@
   position: relative;
   z-index: 1;
   transition:
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
     z-index 0.4s;
 }
 
 .s11-card:hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
   z-index: 10;
 }
 
@@ -1170,7 +1190,7 @@
     min-width: calc((100% - 30px) / 2.5); /* 1.5 gaps (20px) */
   }
   .s11-card {
-    padding: 2rem 1.5rem 2rem 1.5rem;
+    padding: 5rem 1.5rem 2rem 1.5rem;
   }
   .s11-card:hover {
     transform: none;
@@ -1391,10 +1411,19 @@
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
 }
 
 @keyframes fadeInUp {
@@ -1846,7 +1875,7 @@
   }
 
   .s5-carousel-slide {
-    height: 280px;
+    height: 350px;
   }
 
   .s5-carousel-dots {
