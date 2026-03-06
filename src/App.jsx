@@ -32,6 +32,7 @@ const OrderManagement = React.lazy(() => import('./admin/OrderManagement'));
 const ProductManagement = React.lazy(() => import('./admin/ProductManagement'));
 const StorageCleanup = React.lazy(() => import('./admin/StorageCleanup'));
 const InstagramFeedManagement = React.lazy(() => import('./admin/InstagramFeedManagement'));
+const ShippingManagement = React.lazy(() => import('./admin/ShippingManagement'));
 
 // ── Lazy-loaded homepage sections (below-the-fold) ──
 import SectionOne from './components/SectionOne';
@@ -118,6 +119,7 @@ function App() {
                   <Route path="products" element={<ProductManagement />} />
                   <Route path="storage" element={<StorageCleanup />} />
                   <Route path="instagram-feed" element={<InstagramFeedManagement />} />
+                  <Route path="shipping" element={<ShippingManagement />} />
                 </Route>
               </Route>
             </Routes>

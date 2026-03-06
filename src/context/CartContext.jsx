@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
-
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
+import { fetchWithCoalescing, getCachedData, setCachedData, PRODUCTS_UPDATED_EVENT } from '../utils/supabaseFetch.js';
 import p1 from '../assets/p-11.webp';
 import p2 from '../assets/p-22.webp';
 import p3 from '../assets/p-33.webp';
@@ -15,12 +16,10 @@ export const DEFAULT_PRODUCTS = [
 
 export const PRODUCTS = DEFAULT_PRODUCTS; // legacy export
 
-import { supabase } from '../supabaseClient';
-import { fetchWithCoalescing, getCachedData, setCachedData } from '../utils/supabaseFetch.js';
-
 const CartContext = createContext(null);
 const PRODUCTS_CACHE_KEY = 'products_list';
 const CART_STORAGE_KEY = 'ambrosia_cart_items';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 // Action types
 const ADD_TO_CART = 'ADD_TO_CART';
@@ -86,31 +85,36 @@ export function CartProvider({ children }) {
 
   const [products, setProducts] = React.useState(DEFAULT_PRODUCTS);
 
-  React.useEffect(() => {
-    async function fetchProducts() {
-      const cached = getCachedData(PRODUCTS_CACHE_KEY);
-      if (cached) {
-        setProducts(cached);
-        return;
-      }
-
-      const { data, error } = await fetchWithCoalescing(PRODUCTS_CACHE_KEY, () =>
-        supabase.from('products').select('id,name,description,price,image_url').order('created_at', { ascending: false })
-      );
-
-      if (!error && data && data.length > 0) {
-        const defaults = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
-        const isValidUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
-        const formattedProducts = data.map(p => ({
-          ...p,
-          image: isValidUrl(p.image_url) ? p.image_url : (defaults[p.id] || p1)
-        }));
-        setCachedData(PRODUCTS_CACHE_KEY, formattedProducts);
-        setProducts(formattedProducts);
-      }
+  const fetchProducts = useCallback(async () => {
+    const cached = getCachedData(PRODUCTS_CACHE_KEY);
+    if (cached) {
+      setProducts(cached);
+      return;
     }
-    fetchProducts();
+    const { data, error } = await fetchWithCoalescing(PRODUCTS_CACHE_KEY, () =>
+      supabase.from('products').select('id,name,description,price,image_url').order('created_at', { ascending: false })
+    );
+    if (!error && data && data.length > 0) {
+      const defaults = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
+      const isValidUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
+      const formattedProducts = data.map(p => ({
+        ...p,
+        image: isValidUrl(p.image_url) ? p.image_url : (defaults[p.id] || p1)
+      }));
+      setCachedData(PRODUCTS_CACHE_KEY, formattedProducts);
+      setProducts(formattedProducts);
+    }
   }, []);
+
+  React.useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  React.useEffect(() => {
+    const handler = () => fetchProducts();
+    window.addEventListener(PRODUCTS_UPDATED_EVENT, handler);
+    return () => window.removeEventListener(PRODUCTS_UPDATED_EVENT, handler);
+  }, [fetchProducts]);
 
   React.useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
@@ -135,6 +139,66 @@ export function CartProvider({ children }) {
   const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  const [shippingCharge, setShippingCharge] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+
+  useEffect(() => {
+    const packIds = [...new Set(state.items.map((i) => i.id))];
+    if (packIds.length === 0) {
+      setShippingCharge(0);
+      return;
+    }
+    setShippingLoading(true);
+
+    const computeFromSupabase = async () => {
+      const sortedKey = [...packIds].map(String).sort().join(',');
+      let charge = 0;
+      try {
+        const { data: combos } = await supabase.from('combo_shipping_rules').select('pack_ids,shipping_price');
+        const match = (combos || []).find((c) => {
+          const ids = [...(c.pack_ids || [])].map(String).sort();
+          return ids.join(',') === sortedKey;
+        });
+        if (match) {
+          charge = Number(match.shipping_price) || 0;
+          return charge;
+        }
+      } catch {
+        /* combo table may not exist */
+      }
+      try {
+        const { data: packs } = await supabase.from('products').select('id,shipping_charge').in('id', packIds);
+        if (packs?.length) {
+          charge = Math.max(...packs.map((p) => Number(p?.shipping_charge) || 0), 0);
+        }
+      } catch {
+        /* fallback to 0 */
+      }
+      return charge;
+    };
+
+    fetch(`${API_BASE}/api/calculate-shipping`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectedPacks: packIds }),
+    })
+      .then((r) => {
+        if (r.ok) return r.json();
+        throw new Error('API failed');
+      })
+      .then((json) => {
+        if (json.success && typeof json.shippingCharge === 'number') {
+          setShippingCharge(json.shippingCharge);
+        } else {
+          throw new Error('Invalid response');
+        }
+      })
+      .catch(() => computeFromSupabase().then(setShippingCharge))
+      .finally(() => setShippingLoading(false));
+  }, [state.items]);
+
+  const total = subtotal + shippingCharge;
+
   return (
     <CartContext.Provider
       value={{
@@ -145,6 +209,9 @@ export function CartProvider({ children }) {
         clearCart,
         totalItems,
         subtotal,
+        shippingCharge,
+        shippingLoading,
+        total,
         products,
       }}
     >

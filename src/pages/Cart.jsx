@@ -19,7 +19,7 @@ function CartItemImage({ item }) {
 }
 
 export default function Cart() {
-  const { items, updateQuantity, removeFromCart, clearCart, subtotal, totalItems } = useCart();
+  const { items, updateQuantity, removeFromCart, clearCart, subtotal, shippingCharge, shippingLoading, total } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const isEmpty = items.length === 0;
@@ -114,12 +114,12 @@ export default function Cart() {
             </div>
             <div className="cart-summary-row">
               <span>Shipping</span>
-              <span className="cart-shipping-free">Free</span>
+              <span>{shippingLoading ? '...' : `₹${shippingCharge.toFixed(2)}`}</span>
             </div>
             <div className="cart-summary-divider"></div>
             <div className="cart-summary-row cart-summary-total">
               <span>Total</span>
-              <span>₹{subtotal.toFixed(2)}</span>
+              <span>₹{total.toFixed(2)}</span>
             </div>
             <button className="cart-checkout-btn" onClick={handleCheckout} id="cart-checkout">
               CHECKOUT

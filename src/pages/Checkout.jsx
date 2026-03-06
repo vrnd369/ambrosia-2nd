@@ -8,7 +8,7 @@ import './Checkout.css';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function Checkout() {
-    const { items, subtotal, clearCart } = useCart();
+    const { items, subtotal, shippingCharge, total, clearCart } = useCart();
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
@@ -56,7 +56,7 @@ export default function Checkout() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    amount: Math.round(subtotal * 100),
+                    amount: Math.round(total * 100),
                     currency: 'INR',
                     receipt: `amb_${Date.now()}`,
                 }),
@@ -102,7 +102,7 @@ export default function Checkout() {
 
                     const { data, error } = await supabase.from('orders').insert({
                         user_id: user.id,
-                        total_amount: subtotal,
+                        total_amount: total,
                         status: 'Paid',
                         payment_id: response.razorpay_payment_id,
                         shipping_address: `${form.address}, ${form.city}${form.state ? `, ${form.state}` : ''}, PIN: ${form.pin}`,
@@ -128,7 +128,7 @@ export default function Checkout() {
                                     pin: form.pin,
                                 },
                                 items: orderItems,
-                                subTotal: subtotal,
+                                subTotal: total,
                             }),
                         });
                         const srJson = await srRes.json().catch(() => ({}));
@@ -248,7 +248,7 @@ export default function Checkout() {
                         </div>
 
                         <button type="submit" className="checkout-pay-btn" disabled={loading} id="pay-now-btn">
-                            {loading ? 'Initializing Gateway...' : `Pay ₹${subtotal.toFixed(2)}`}
+                            {loading ? 'Initializing Gateway...' : `Pay ₹${total.toFixed(2)}`}
                         </button>
                     </form>
                 </div>
@@ -263,9 +263,17 @@ export default function Checkout() {
                             </div>
                         ))}
                     </div>
+                    <div className="checkout-summary-row">
+                        <span>Subtotal</span>
+                        <span>₹{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="checkout-summary-row">
+                        <span>Shipping</span>
+                        <span>₹{shippingCharge.toFixed(2)}</span>
+                    </div>
                     <div className="checkout-total-row">
                         <span>Total Payable</span>
-                        <span className="checkout-total-value">₹{subtotal.toFixed(2)}</span>
+                        <span className="checkout-total-value">₹{total.toFixed(2)}</span>
                     </div>
                 </div>
             </div>

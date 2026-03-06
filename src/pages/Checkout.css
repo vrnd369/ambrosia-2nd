@@ -138,6 +138,14 @@
     color: #4a5568;
 }
 
+.checkout-summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #718096;
+}
+
 .checkout-total-row {
     display: flex;
     justify-content: space-between;

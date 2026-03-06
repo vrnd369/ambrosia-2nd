@@ -14,16 +14,19 @@ const SET_ROLE_LOADING = 'SET_ROLE_LOADING';
 
 function authReducer(state, action) {
   switch (action.type) {
-    case LOGIN:
+    case LOGIN: {
+      const sameUser = state.user?.id === action.payload?.id;
+      const alreadyHaveRole = sameUser && state.userRole != null;
       return {
         ...state,
         user: action.payload,
         isAuthenticated: true,
         isLoading: false,
         error: null,
-        userRole: null,
-        userRoleLoading: true,
+        userRole: alreadyHaveRole ? state.userRole : null,
+        userRoleLoading: alreadyHaveRole ? false : true,
       };
+    }
     case LOGOUT:
       return {
         ...state,

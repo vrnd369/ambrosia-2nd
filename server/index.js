@@ -10,6 +10,9 @@ import express from 'express';
 import cors from 'cors';
 import shiprocketRoutes from './routes/shiprocket.js';
 import razorpayRoutes from './routes/razorpay.js';
+import packsRoutes from './routes/packs.js';
+import shippingCombosRoutes from './routes/shippingCombos.js';
+import shippingRoutes from './routes/shipping.js';
 import { rateLimit } from './middleware/rateLimit.js';
 
 const app = express();
@@ -39,6 +42,9 @@ app.use(express.json());
 
 app.use('/api/shiprocket', shiprocketRoutes);
 app.use('/api/razorpay', razorpayRoutes);
+app.use('/api/packs', packsRoutes);
+app.use('/api/shipping-combos', shippingCombosRoutes);
+app.use('/api', shippingRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });

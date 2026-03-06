@@ -53,3 +53,12 @@ export function invalidateCache(keyOrPattern) {
     if (re.test(k)) cache.delete(k);
   }
 }
+
+/** Notify all consumers that products have changed (Product/Shipping Management). Main site will refetch. */
+export const PRODUCTS_UPDATED_EVENT = 'products-updated';
+export function notifyProductsUpdated() {
+  invalidateCache('products_list');
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(PRODUCTS_UPDATED_EVENT));
+  }
+}

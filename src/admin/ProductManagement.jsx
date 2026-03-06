@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 
 import imageCompression from 'browser-image-compression';
 import { supabase } from '../supabaseClient';
-import { invalidateCache } from '../utils/supabaseFetch.js';
+import { invalidateCache, notifyProductsUpdated } from '../utils/supabaseFetch.js';
 import { debounce } from '../utils/debounce.js';
 import './Admin.css';
 import p1 from '../assets/p-11.webp';
@@ -102,7 +102,7 @@ export default function ProductManagement() {
         if (!window.confirm('Delete this product?')) return;
         setLoading(true);
         await supabase.from('products').delete().eq('id', id);
-        invalidateCache('products_list');
+        notifyProductsUpdated();
         setProducts(prev => prev.filter(p => p.id !== id));
         setLoading(false);
     };
@@ -139,12 +139,14 @@ export default function ProductManagement() {
             description: formData.description,
             price: Number(formData.price),
             image_url: formData.image_url,
+            weight: 1,
+            shipping_charge: 0,
         };
 
         if (editingProduct) {
             const { error } = await supabase.from('products').update(payload).eq('id', editingProduct.id);
             if (!error) {
-                invalidateCache('products_list');
+                notifyProductsUpdated();
                 setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...payload } : p));
                 handleCloseModal();
             }
@@ -157,7 +159,7 @@ export default function ProductManagement() {
             }
             const { data: inserted, error } = await supabase.from('products').insert(payload).select('id,name,description,price,image_url').single();
             if (!error && inserted) {
-                invalidateCache('products_list');
+                notifyProductsUpdated();
                 setProducts(prev => [inserted, ...prev]);
                 handleCloseModal();
             }

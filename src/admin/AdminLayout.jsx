@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingCart, Package, Trash2, Video, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingCart, Package, Trash2, Video, Truck, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Admin.css';
 
@@ -43,6 +43,10 @@ export default function AdminLayout() {
                     <NavLink to="/admin/instagram-feed" className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}>
                         <Video size={20} />
                         <span>Instagram Feed</span>
+                    </NavLink>
+                    <NavLink to="/admin/shipping" className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}>
+                        <Truck size={20} />
+                        <span>Shipping</span>
                     </NavLink>
                 </nav>
                 <div className="admin-sidebar-footer">
