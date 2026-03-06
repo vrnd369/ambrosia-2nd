@@ -237,9 +237,9 @@ function SectionTwelve() {
               <a href="https://www.instagram.com/not4you.in/" className="social-icon" target="_blank">
                 <FaInstagram />
               </a>
-              <a href="#" className="social-icon">
+              {/* <a href="#" className="social-icon">
                 <FaXTwitter />
-              </a>
+              </a> */}
               <a href="https://www.youtube.com/@Thedrinkambrosia" className="social-icon" target="_blank">
                 <FaYoutube />
               </a>

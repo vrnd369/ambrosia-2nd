@@ -39,9 +39,9 @@ export default function Contact() {
               <h2 className="contact-card-title">Find us:</h2>
               <p className="contact-text">Banjara Hills, Hyderabad, India</p>
               <p className="contact-text text-light">(Come say hi. We're fun, promise.)</p>
-              <a href="https://maps.app.goo.gl/ycYNYTYze88smWvEA" target="_blank" className="contact-link">
+              {/* <a href="https://maps.app.goo.gl/ycYNYTYze88smWvEA" target="_blank" className="contact-link">
                 Open maps &gt;
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

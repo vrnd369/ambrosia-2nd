@@ -289,9 +289,9 @@
   }
 
   /* Mobile cart button alignment */
-  .navbar-cart-btn--mobile {
+  /* .navbar-cart-btn--mobile {
     filter: drop-shadow(0px 0px 3px #ef4e24);
-  }
+  } */
 }
 
 @media (max-width: 480px) {
@@ -319,42 +319,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: linear-gradient(135deg, #ff7043, #ff5722);
   border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  color: #fff;
   cursor: pointer;
-  padding: 0;
-  /* margin-left: auto; */
+  padding: 0.2rem 0 0 0;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
-  filter: drop-shadow(0px 0px 3px #ef4e24);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3);
 }
 
 .navbar-cart-btn:hover {
   transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(255, 87, 34, 0.4);
 }
 
 .navbar-cart-btn svg {
   display: block;
+  width: 24px;
+  height: 24px;
 }
 
 .navbar-cart-badge {
   position: absolute;
-  top: -5px;
-  right: -7px;
+  top: -2px;
+  right: -2px;
   min-width: 18px;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ff5722;
-  color: #fff;
+  background: #ffffff;
+  color: #ff5722;
   font-family: var(--font-main), sans-serif;
   font-size: 0.6rem;
   font-weight: 800;
   border-radius: 50%;
   padding: 0 4px;
   line-height: 1;
-  box-shadow: 0 2px 6px rgba(255, 87, 34, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   animation: badgePop 0.35s cubic-bezier(0.36, 1.5, 0.6, 1);
 }
 
@@ -375,31 +383,39 @@
 
 /* Responsive cart button */
 @media (max-width: 768px) {
-  .navbar-cart-btn svg {
-    width: 28px;
-    height: 28px;
+  .navbar-cart-btn {
+    width: 40px;
+    height: 40px;
   }
-
-  .navbar-cart-badge {
-    min-width: 16px;
-    height: 16px;
-    font-size: 0.5rem;
-    top: -4px;
-    right: -5px;
-  }
-}
-
-@media (max-width: 480px) {
   .navbar-cart-btn svg {
     width: 24px;
     height: 24px;
   }
 
   .navbar-cart-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.5rem;
+    top: -2px;
+    right: -2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-cart-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .navbar-cart-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .navbar-cart-badge {
     min-width: 14px;
     height: 14px;
     font-size: 0.45rem;
-    top: -3px;
-    right: -4px;
+    top: -2px;
+    right: -2px;
   }
 }

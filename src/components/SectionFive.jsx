@@ -53,7 +53,7 @@ const ingredients = [
 
 function SectionFive() {
   const [current, setCurrent] = useState(0);
-  const [expandedIndex, setExpandedIndex] = useState(0);
+  const [expandedIndex, setExpandedIndex] = useState(null);
   const trackRef = useRef(null);
   const viewportRef = useRef(null);
 

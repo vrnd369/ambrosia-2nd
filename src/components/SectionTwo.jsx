@@ -177,55 +177,69 @@ function SectionTwo() {
 
   useEffect(() => {
     const panels = gsap.utils.toArray('.eye-panel');
-    const triggers = [];
 
-    panels.forEach((panel, i) => {
-      if (i === panels.length - 1) return;
-
-      const st = ScrollTrigger.create({
-        trigger: panel,
+    // Create a master timeline pinned to the section
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
         start: 'top top',
+        end: `+=100%`, // Reduced from panels.length * 100% to make the scroll shorter
         pin: true,
-        pinSpacing: false,
-        end: () => `+=${panel.offsetHeight * (panels.length - i - 1)}`,
-      });
-      triggers.push(st);
+        scrub: true,
+      },
+    });
 
-      // Fade out this panel as the next one scrolls from bottom to top
-      const nextPanel = panels[i + 1];
-      if (nextPanel) {
-        const fadeTween = gsap.to(panel, {
-          opacity: 0,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: nextPanel,
-            start: 'top bottom',
-            end: 'top top',
-            scrub: true,
-          },
-        });
-        triggers.push(fadeTween.scrollTrigger);
+    // Make sure panel 0 is visible initially, others hidden.
+    gsap.set(panels, { autoAlpha: 0 });
+    gsap.set(panels[0], { autoAlpha: 1 });
+
+    // Animate the replacement instantly
+    panels.forEach((panel, i) => {
+      if (i > 0) {
+        // Scroll distance filler to create a delay before the next switch
+        tl.to({}, { duration: 1 });
+        
+        // Instantly hide the previous panel and show the current one
+        tl.set(panels[i - 1], { autoAlpha: 0 })
+          .set(panel, { autoAlpha: 1 });
       }
     });
 
+    // Add a final spacer so the last image stays visible for a scroll duration
+    tl.to({}, { duration: 1 });
+
     return () => {
-      triggers.forEach(t => t.kill());
+      ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
 
+  const containerStyle = {
+    position: 'relative',
+    height: '100vh',
+    width: '100%',
+  };
+
+  const panelStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100vh',
+  };
+
   return (
     <section ref={sectionRef} id="eye" className="eye-section">
-      <div className="eye-container">
-        <div className="eye-panel">
+      <div className="eye-container" style={containerStyle}>
+        <div className="eye-panel" style={panelStyle}>
           <img src={Eye0} alt="Eye 0" loading="lazy" decoding="async" />
         </div>
-        <div className="eye-panel">
+        <div className="eye-panel" style={panelStyle}>
           <img src={Eye1} alt="Eye 1" loading="lazy" decoding="async" />
         </div>
-        <div className="eye-panel">
+        <div className="eye-panel" style={panelStyle}>
           <img src={Eye2} alt="Eye 2" loading="lazy" decoding="async" />
         </div>
-        <div className="eye-panel">
+        <div className="eye-panel" style={panelStyle}>
           <img src={Eye3} alt="Eye 3" loading="lazy" decoding="async" />
         </div>
       </div>

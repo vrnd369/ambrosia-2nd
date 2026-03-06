@@ -33,7 +33,11 @@
   font-weight: 600;
   color: #555;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease, color 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease,
+    color 0.25s ease;
 }
 
 .auth-back-btn:hover {
@@ -90,20 +94,39 @@
 }
 
 @keyframes blobFloat1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, 20px) scale(1.05); }
-  66% { transform: translate(-15px, 35px) scale(0.97); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, 20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-15px, 35px) scale(0.97);
+  }
 }
 
 @keyframes blobFloat2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-25px, -20px) scale(1.08); }
-  66% { transform: translate(20px, -30px) scale(0.95); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-25px, -20px) scale(1.08);
+  }
+  66% {
+    transform: translate(20px, -30px) scale(0.95);
+  }
 }
 
 @keyframes blobFloat3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-40px, 20px) scale(1.1); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, 20px) scale(1.1);
+  }
 }
 
 /* ---------- Main container ---------- */
@@ -143,7 +166,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #ff5722 0%, #ff7043 40%, #ff8a65 100%);
+  background: linear-gradient(89.88deg, #f57621 -51.01%, #e25f5d 99.89%);
   padding: 3rem;
   position: relative;
   overflow: hidden;
@@ -201,6 +224,7 @@
 .auth-brand-feature {
   display: flex;
   align-items: center;
+  text-align: left;
   gap: 0.75rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -210,11 +234,11 @@
 .auth-feature-icon {
   font-size: 1.2rem;
   width: 36px;
-  height: 36px;
+  /* height: 36px; */
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.18);
+  /* background: rgba(255, 255, 255, 0.18); */
   border-radius: 10px;
   flex-shrink: 0;
 }
@@ -354,7 +378,10 @@
   border: 1.5px solid #e5e5e5;
   border-radius: 12px;
   padding: 0 1rem;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
 }
 
 .auth-input-wrapper:focus-within {
@@ -408,7 +435,9 @@
   cursor: pointer;
   color: #aaa;
   border-radius: 6px;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
 .auth-toggle-pw:hover {
@@ -509,7 +538,10 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
 }
 
 .auth-submit-btn:hover:not(:disabled) {
@@ -540,7 +572,9 @@
 }
 
 @keyframes authSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- Divider ---------- */
@@ -589,7 +623,10 @@
   font-weight: 500;
   color: #333;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .auth-social-btn:hover {
@@ -746,6 +783,15 @@
   }
 }
 
+@media (max-width: 480px) {
+  .auth-brand-features {
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    margin: 0 auto;
+  }
+}
+
 /* ==============================================
    NAVBAR AUTH BUTTON
    ============================================== */
@@ -765,7 +811,10 @@
   border-radius: 50px;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
   text-decoration: none;
 }
 
@@ -802,7 +851,9 @@
   font-size: 0.8rem;
   letter-spacing: 0.5px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   border: 2px solid rgba(255, 87, 34, 0.3);
 }
 
@@ -828,7 +879,9 @@
   opacity: 0;
   transform: translateY(-6px) scale(0.97);
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .navbar-user-dropdown--open {
@@ -869,7 +922,9 @@
   font-weight: 500;
   color: #555;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .navbar-user-dropdown-item:hover {

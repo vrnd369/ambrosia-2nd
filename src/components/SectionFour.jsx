@@ -42,7 +42,7 @@ function SectionFour() {
 
   const handleWhatsAppClick = (e) => {
     e.preventDefault();
-    const phoneNumber = "9000179900";
+    const phoneNumber = "9849560385";
     const message = encodeURIComponent("Hello, I'm interested in Ambrosia!");
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
