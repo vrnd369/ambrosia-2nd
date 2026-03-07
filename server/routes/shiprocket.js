@@ -1,7 +1,16 @@
 import express from 'express';
+import { createClient } from '@supabase/supabase-js';
 import { getToken, getCredentials, buildOrderPayload, createOrder, getOrderByOrderId, getTrackingByAwb } from '../utils/shiprocket.js';
 
 const router = express.Router();
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+function getSupabaseAdmin() {
+  if (!supabaseUrl || !serviceRoleKey) return null;
+  return createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+}
 
 /**
  * POST /api/shiprocket/login
@@ -46,7 +55,25 @@ router.post('/create-order', async (req, res) => {
       });
     }
 
-    const payload = buildOrderPayload({ orderId, buyer, items, subTotal });
+    // Fetch product weights from DB (fallback when items don't have weight from frontend)
+    const productWeights = {};
+    const admin = getSupabaseAdmin();
+    if (admin) {
+      const ids = [...new Set((items || []).map((i) => i.id).filter(Boolean))];
+      if (ids.length > 0) {
+        const { data, error } = await admin.from('products').select('id, weight').in('id', ids);
+        if (error) {
+          console.warn('[Shiprocket] Could not fetch product weights:', error.message);
+        } else if (data?.length) {
+          data.forEach((p) => {
+            const w = p.weight != null && p.weight !== '' ? Number(p.weight) : 1;
+            productWeights[p.id] = w;
+          });
+        }
+      }
+    }
+
+    const payload = buildOrderPayload({ orderId, buyer, items, subTotal, productWeights });
     const result = await createOrder(payload);
 
     res.json({

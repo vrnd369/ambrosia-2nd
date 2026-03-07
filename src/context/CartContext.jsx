@@ -6,12 +6,12 @@ import p2 from '../assets/p-22.webp';
 import p3 from '../assets/p-33.webp';
 import p4 from '../assets/p-44.webp';
 
-// Default product data
+// Default product data (weights: 4-pack=1kg, 6-pack=1.5kg, 12-pack=3kg, 24-pack=6kg)
 export const DEFAULT_PRODUCTS = [
-  { id: 'p-1', name: 'Ambrosia Flow', description: '4 Pack', price: 800, image: p1 },
-  { id: 'p-2', name: 'Ambrosia Flow', description: '6 Pack', price: 1200, image: p2 },
-  { id: 'p-3', name: 'Ambrosia Flow', description: '12 Pack', price: 2400, image: p3 },
-  { id: 'p-4', name: 'Ambrosia Flow', description: '24 Pack', price: 4800, image: p4 },
+  { id: 'p-1', name: 'Ambrosia Flow', description: '4 Pack', price: 800, image: p1, weight: 1 },
+  { id: 'p-2', name: 'Ambrosia Flow', description: '6 Pack', price: 1200, image: p2, weight: 1.5 },
+  { id: 'p-3', name: 'Ambrosia Flow', description: '12 Pack', price: 2400, image: p3, weight: 3 },
+  { id: 'p-4', name: 'Ambrosia Flow', description: '24 Pack', price: 4800, image: p4, weight: 6 },
 ];
 
 export const PRODUCTS = DEFAULT_PRODUCTS; // legacy export
@@ -20,6 +20,19 @@ const CartContext = createContext(null);
 const PRODUCTS_CACHE_KEY = 'products_list';
 const CART_STORAGE_KEY = 'ambrosia_cart_items';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
+/** Extract pack size from description (e.g. "4 Pack" -> 4, "24 Pack" -> 24). Used for ordering 4, 6, 12, 24. */
+function getPackOrder(description) {
+  if (!description || typeof description !== 'string') return 999;
+  const match = String(description).match(/(\d+)\s*Pack/i);
+  return match ? parseInt(match[1], 10) : 999;
+}
+
+/** Sort products by pack size: 4, 6, 12, 24. Custom packs go last. */
+function sortProductsByPackSize(products) {
+  if (!Array.isArray(products) || products.length <= 1) return products;
+  return [...products].sort((a, b) => getPackOrder(a.description) - getPackOrder(b.description));
+}
 
 // Action types
 const ADD_TO_CART = 'ADD_TO_CART';
@@ -88,11 +101,11 @@ export function CartProvider({ children }) {
   const fetchProducts = useCallback(async () => {
     const cached = getCachedData(PRODUCTS_CACHE_KEY);
     if (cached) {
-      setProducts(cached);
+      setProducts(sortProductsByPackSize(cached));
       return;
     }
     const { data, error } = await fetchWithCoalescing(PRODUCTS_CACHE_KEY, () =>
-      supabase.from('products').select('id,name,description,price,image_url').order('created_at', { ascending: false })
+      supabase.from('products').select('id,name,description,price,image_url,weight')
     );
     if (!error && data && data.length > 0) {
       const defaults = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
@@ -101,8 +114,9 @@ export function CartProvider({ children }) {
         ...p,
         image: isValidUrl(p.image_url) ? p.image_url : (defaults[p.id] || p1)
       }));
-      setCachedData(PRODUCTS_CACHE_KEY, formattedProducts);
-      setProducts(formattedProducts);
+      const sorted = sortProductsByPackSize(formattedProducts);
+      setCachedData(PRODUCTS_CACHE_KEY, sorted);
+      setProducts(sorted);
     }
   }, []);
 
@@ -141,6 +155,7 @@ export function CartProvider({ children }) {
 
   const [shippingCharge, setShippingCharge] = useState(0);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const shippingRequestIdRef = React.useRef(0);
 
   useEffect(() => {
     const packIds = [...new Set(state.items.map((i) => i.id))];
@@ -149,6 +164,7 @@ export function CartProvider({ children }) {
       return;
     }
     setShippingLoading(true);
+    const requestId = ++shippingRequestIdRef.current;
 
     const computeFromSupabase = async () => {
       const sortedKey = [...packIds].map(String).sort().join(',');
@@ -177,6 +193,12 @@ export function CartProvider({ children }) {
       return charge;
     };
 
+    const applyResult = (charge) => {
+      if (requestId === shippingRequestIdRef.current) {
+        setShippingCharge(charge);
+      }
+    };
+
     fetch(`${API_BASE}/api/calculate-shipping`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -188,13 +210,15 @@ export function CartProvider({ children }) {
       })
       .then((json) => {
         if (json.success && typeof json.shippingCharge === 'number') {
-          setShippingCharge(json.shippingCharge);
+          applyResult(json.shippingCharge);
         } else {
           throw new Error('Invalid response');
         }
       })
-      .catch(() => computeFromSupabase().then(setShippingCharge))
-      .finally(() => setShippingLoading(false));
+      .catch(() => computeFromSupabase().then(applyResult))
+      .finally(() => {
+        if (requestId === shippingRequestIdRef.current) setShippingLoading(false);
+      });
   }, [state.items]);
 
   const total = subtotal + shippingCharge;

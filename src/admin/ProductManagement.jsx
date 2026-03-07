@@ -15,6 +15,18 @@ const DEFAULT_IMAGES = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
 
 const isStorageUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
 
+/** Extract pack size from description for ordering: 4, 6, 12, 24. */
+function getPackOrder(description) {
+  if (!description || typeof description !== 'string') return 999;
+  const match = String(description).match(/(\d+)\s*Pack/i);
+  return match ? parseInt(match[1], 10) : 999;
+}
+
+function sortProductsByPackSize(products) {
+  if (!Array.isArray(products) || products.length <= 1) return products;
+  return [...products].sort((a, b) => getPackOrder(a.description) - getPackOrder(b.description));
+}
+
 // Product image with fallback when URL fails, empty, or is base64
 function ProductImage({ product }) {
   const [imgError, setImgError] = useState(false);
@@ -67,9 +79,9 @@ export default function ProductManagement() {
 
     const fetchProducts = async () => {
         setLoading(true);
-        const { data, error } = await supabase.from('products').select('id,name,description,price,image_url').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('products').select('id,name,description,price,image_url');
         if (!error && data) {
-            setProducts(data);
+            setProducts(sortProductsByPackSize(data));
         }
         setLoading(false);
     };
@@ -101,9 +113,13 @@ export default function ProductManagement() {
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this product?')) return;
         setLoading(true);
-        await supabase.from('products').delete().eq('id', id);
-        notifyProductsUpdated();
-        setProducts(prev => prev.filter(p => p.id !== id));
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        if (error) {
+            alert(error.message || 'Delete failed');
+        } else {
+            notifyProductsUpdated();
+            setProducts(prev => prev.filter(p => p.id !== id));
+        }
         setLoading(false);
     };
 
@@ -147,8 +163,10 @@ export default function ProductManagement() {
             const { error } = await supabase.from('products').update(payload).eq('id', editingProduct.id);
             if (!error) {
                 notifyProductsUpdated();
-                setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...payload } : p));
+                setProducts(prev => sortProductsByPackSize(prev.map(p => p.id === editingProduct.id ? { ...p, ...payload } : p)));
                 handleCloseModal();
+            } else {
+                alert(error.message || 'Failed to update product');
             }
         } else {
             const { data: existing } = await supabase.from('products').select('id').eq('id', payload.id).maybeSingle();
@@ -160,8 +178,10 @@ export default function ProductManagement() {
             const { data: inserted, error } = await supabase.from('products').insert(payload).select('id,name,description,price,image_url').single();
             if (!error && inserted) {
                 notifyProductsUpdated();
-                setProducts(prev => [inserted, ...prev]);
+                setProducts(prev => sortProductsByPackSize([inserted, ...prev]));
                 handleCloseModal();
+            } else {
+                alert(error?.message || 'Failed to add product');
             }
         }
         setLoading(false);
@@ -173,23 +193,27 @@ export default function ProductManagement() {
 
         try {
             setUploadingImage(true);
+            const mime = file.type || 'image/png';
+            const outputType = mime === 'image/png' ? 'image/png' : mime === 'image/webp' ? 'image/webp' : 'image/jpeg';
+            const ext = outputType === 'image/png' ? 'png' : outputType === 'image/webp' ? 'webp' : 'jpg';
+
             const options = {
-                maxSizeMB: 0.03,
-                maxWidthOrHeight: 800,
+                maxSizeMB: 0.5,
+                maxWidthOrHeight: 1600,
                 useWebWorker: true,
-                initialQuality: 0.75,
-                fileType: 'image/webp',
+                initialQuality: 0.92,
+                fileType: outputType,
             };
 
             const compressedFile = await imageCompression(file, options);
             const productId = formData.id || `temp-${Date.now()}`;
-            const filePath = `${productId}/${Date.now()}.webp`;
+            const filePath = `${productId}/${Date.now()}.${ext}`;
 
             const { data, error } = await supabase.storage
                 .from(PRODUCT_IMAGES_BUCKET)
                 .upload(filePath, compressedFile, {
                     upsert: true,
-                    contentType: 'image/webp',
+                    contentType: outputType,
                     cacheControl: 'public, max-age=31536000, immutable',
                 });
 

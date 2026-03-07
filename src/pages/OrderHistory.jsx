@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -60,6 +60,7 @@ export default function OrderHistory() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [trackingData, setTrackingData] = useState({});
+  const fetchedTrackingIdsRef = useRef(new Set());
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -139,10 +140,12 @@ export default function OrderHistory() {
 
   const TRACKING_FETCH_LIMIT = 5;
   useEffect(() => {
-    orders.slice(0, TRACKING_FETCH_LIMIT).forEach(o => {
-      if (trackingData[o.id] === undefined) fetchTracking(o);
+    const toFetch = orders.slice(0, TRACKING_FETCH_LIMIT).filter(o => !fetchedTrackingIdsRef.current.has(o.id));
+    toFetch.forEach(o => {
+      fetchedTrackingIdsRef.current.add(o.id);
+      fetchTracking(o);
     });
-  }, [orders, trackingData, fetchTracking]);
+  }, [orders, fetchTracking]);
 
   const filteredOrders = orders.filter(o => {
     const matchSearch = !searchQuery || (o.id?.toLowerCase().includes(searchQuery.toLowerCase())) ||

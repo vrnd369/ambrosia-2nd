@@ -41,7 +41,7 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 99999;
   /* box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15); */
 }
 
@@ -99,21 +99,38 @@
   width: 100%;
 }
 
-@media (max-width: 1230px) {
+@media (max-width: 1300px) {
   .s3-navbar {
     gap: 3rem;
   }
 }
 
+@media (max-width: 1120px) {
+  .s3-navbar {
+    gap: 2.2rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .s3-navbar {
-    gap: 1rem;
+    gap: 2rem;
+    width: 95%;
   }
 
   .s3-nav-link {
     font-size: 0.7rem;
   }
 }
+
+@media (max-width: 900px) {
+  .s3-navbar {
+    gap: 1.5rem;
+  }
+  .s3-nav-link {
+    font-size: 0.6rem;
+  }
+}
+
 
 /* -----------------------------------------------
    RESPONSIVE — Section Three Navbar (homepage)
@@ -258,7 +275,7 @@
   }
 
   .navbar-mobile-menu--open {
-    max-height: 360px;
+    max-height: max-content;
     opacity: 1;
   }
 
@@ -297,7 +314,7 @@
 @media (max-width: 480px) {
   .navbar-mobile {
     width: 95%;
-    top: 8px;
+    top: 0;
   }
 
   .navbar-mobile-bar {

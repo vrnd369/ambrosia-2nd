@@ -1,44 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { getAuthHeaders } from '../utils/apiAuth';
 import { Users, ShoppingCart, Package, DollarSign } from 'lucide-react';
 import './Admin.css';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function Overview() {
     const [stats, setStats] = useState({ users: 0, orders: 0, products: 0, revenue: 0 });
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchStats();
-    }, []);
+    const [error, setError] = useState(null);
 
     const fetchStats = async () => {
+        setLoading(true);
+        setError(null);
         try {
-            setLoading(true);
-            const { count: usersCount } = await supabase.from('users').select('id', { count: 'exact', head: true });
-            const { count: ordersCount } = await supabase.from('orders').select('id', { count: 'exact', head: true });
-            const { count: productsCount } = await supabase.from('products').select('id', { count: 'exact', head: true });
-
-            let revenue = 0;
-            const { data: revenueData, error: rpcError } = await supabase.rpc('get_total_revenue');
-            if (!rpcError && revenueData != null) {
-                revenue = Number(revenueData);
-            } else if (rpcError) {
-                const { data: orders } = await supabase.from('orders').select('total_amount');
-                revenue = orders ? orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0) : 0;
+            const headers = await getAuthHeaders();
+            if (!headers.Authorization) {
+                setError('Please log in to view stats');
+                return;
             }
-
-            setStats({
-                users: usersCount || 0,
-                orders: ordersCount || 0,
-                products: productsCount || 0,
-                revenue,
-            });
-        } catch (error) {
-            console.error('Error fetching stats:', error);
+            const res = await fetch(`${API_BASE}/api/admin/stats`, { headers });
+            const json = await res.json().catch(() => ({}));
+            if (json.success && json.data) {
+                setStats(json.data);
+            } else {
+                setError(json.error || 'Failed to load stats');
+            }
+        } catch (err) {
+            console.error('Error fetching stats:', err);
+            setError(err?.message || 'Failed to load stats');
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
 
     return (
         <div className="admin-page">
@@ -48,6 +46,7 @@ export default function Overview() {
                     {loading ? 'Refreshing...' : 'Refresh Stats'}
                 </button>
             </div>
+            {error && <p className="admin-error-msg">{error}</p>}
 
             <div className="admin-stats-grid">
                 <div className="admin-stat-card">

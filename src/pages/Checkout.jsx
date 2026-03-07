@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +8,11 @@ import './Checkout.css';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function Checkout() {
-    const { items, subtotal, shippingCharge, total, clearCart } = useCart();
+    const { items, products, subtotal, shippingCharge, total, clearCart } = useCart();
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const mountedRef = useRef(true);
+    const paymentObjectRef = useRef(null);
 
     const [form, setForm] = useState({
         phone: '',
@@ -22,6 +24,16 @@ export default function Checkout() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+            if (paymentObjectRef.current) {
+                try { paymentObjectRef.current.close(); } catch {}
+            }
+        };
+    }, []);
+
+    useEffect(() => {
         if (!isAuthenticated) {
             navigate('/auth', { state: { from: '/checkout' }, replace: true });
         } else if (items.length === 0) {
@@ -30,6 +42,8 @@ export default function Checkout() {
     }, [isAuthenticated, items, navigate]);
 
     const loadRazorpayScript = () => {
+        if (typeof window !== 'undefined' && window.Razorpay) return Promise.resolve(true);
+        if (document.querySelector('script[src*="checkout.razorpay.com"]')) return Promise.resolve(true);
         return new Promise((resolve) => {
             const script = document.createElement('script');
             script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -80,10 +94,19 @@ export default function Checkout() {
             description: 'Premium Hydration Services',
             image: 'https://i.imgur.com/your-logo.webp', // Optional logo
             handler: async function (response) {
-                const orderItems = items.map(({ id, name, description, price, quantity, image }) => ({
-                    id, name, description, price, quantity,
-                    image: image && typeof image === 'string' && !image.startsWith('data:') ? image : null
-                }));
+                if (!mountedRef.current) return;
+                const orderItems = items.map((item) => {
+                    const weight = item.weight ?? products?.find((p) => p.id === item.id)?.weight ?? 1;
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        description: item.description,
+                        price: item.price,
+                        quantity: item.quantity,
+                        weight: Number(weight) || 1,
+                        image: item.image && typeof item.image === 'string' && !item.image.startsWith('data:') ? item.image : null
+                    };
+                });
 
                 try {
                     const verifyRes = await fetch(`${API_BASE}/api/razorpay/verify`, {
@@ -150,10 +173,12 @@ export default function Checkout() {
                         // Order is still saved - Shiprocket is best-effort
                     }
 
+                    if (!mountedRef.current) return;
                     alert(`Payment Successful! Order #${data?.id?.slice(-8)?.toUpperCase() || ''}`);
                     clearCart();
                     navigate('/');
                 } catch (err) {
+                    if (!mountedRef.current) return;
                     console.error('Checkout error:', err);
                     const errMsg = err?.message || 'Unknown error';
                     if (errMsg.includes('verification') || errMsg.includes('signature')) {
@@ -164,6 +189,8 @@ export default function Checkout() {
                         alert(`Payment received but something went wrong: ${errMsg}. Please contact support with Payment ID: ${response.razorpay_payment_id}`);
                     }
                     // Do NOT clear cart on error - user can retry
+                } finally {
+                    if (mountedRef.current) setLoading(false);
                 }
             },
             prefill: {
@@ -173,16 +200,24 @@ export default function Checkout() {
             },
             theme: {
                 color: '#ff5722'
+            },
+            modal: {
+                ondismiss: function () {
+                    if (mountedRef.current) setLoading(false);
+                }
             }
         };
 
         const paymentObject = new window.Razorpay(options);
+        paymentObjectRef.current = paymentObject;
         paymentObject.on('payment.failed', function (response) {
             console.error('Payment Failed:', response.error);
-            alert('Payment execution failed. Please try again.');
+            if (mountedRef.current) {
+                setLoading(false);
+                alert('Payment execution failed. Please try again.');
+            }
         });
         paymentObject.open();
-        setLoading(false);
     };
 
     if (!isAuthenticated || items.length === 0) return null;

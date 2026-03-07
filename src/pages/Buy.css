@@ -188,8 +188,8 @@
 }
 
 .buy-carousel-section {
-  padding: 5rem 0 7rem;
-  margin-block: 6rem;
+  padding: 3rem 0 4rem;
+  margin-block: 2rem;
   background-color: #ffffff;
 }
 
@@ -197,29 +197,53 @@
   position: relative;
   width: 100%;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
 }
 
 .buy-carousel-viewport {
-  width: 100%;
-  padding: 3rem 0;
-  max-width: 1200px;
-  margin: 0 auto;
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem 0;
+  max-width: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.buy-carousel-viewport:active {
+  cursor: grabbing;
 }
 
 .buy-carousel-track {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px !important;
-  justify-content: center;
-  align-items: stretch;
-  width: 100%;
+  --visible-slides: 4;
+  display: flex;
+  gap: 20px;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  width: max-content;
 }
 
+/* ========== Card – tall portrait like reference ========== */
 .buy-carousel-slide {
   display: flex;
   flex-direction: column;
+  flex: 0 0 280px;
+  width: 280px;
+  height: 420px;
   box-sizing: border-box;
-  width: 100% !important; /* override any lingering JS/inline styles */
+  border-radius: 16px;
+  overflow: hidden;
+  background: none;
+}
+
+/* Image area – fills most of the card height */
+.buy-slide-image-wrap {
+  width: 100%;
+  flex: 1 1 auto;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
 }
 
 .buy-carousel-slide img {
@@ -227,7 +251,6 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  border-radius: 16px;
   display: block;
 }
 
@@ -236,19 +259,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.2rem 0;
+  padding: 0.7rem 0.8rem 0;
   font-family: var(--font-main), sans-serif;
 }
 
 .product-name {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #333;
   letter-spacing: 0.2px;
 }
 
 .product-price {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #1a1a1a;
 }
@@ -258,8 +281,8 @@
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem 0.8rem;
 }
 
 /* Pill-shaped quantity counter */
@@ -279,6 +302,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -323,20 +347,20 @@
 
 /* ---------- Add to Cart Button ---------- */
 .buy-add-to-cart {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 0.8rem;
   background-color: #080808;
   color: #ffffff;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 0.65rem 1rem;
   box-sizing: border-box;
   font-family: var(--font-main), sans-serif;
   font-weight: 800;
-  font-size: 1.05rem;
-  border-radius: 18px;
+  font-size: 0.95rem;
+  border-radius: 14px;
   cursor: pointer;
   letter-spacing: 0.5px;
   transition:
@@ -356,14 +380,73 @@
 }
 
 /* ==============================================
+   CAROUSEL NAV & DOTS
+   ============================================== */
+
+.buy-carousel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: #f57621;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  z-index: 5;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease,
+    opacity 0.3s ease;
+  flex-shrink: 0;
+}
+
+.buy-carousel-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.buy-carousel-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.buy-carousel-btn--left,
+.buy-carousel-btn--right {
+  margin-inline: 0.5rem;
+}
+
+.buy-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+}
+
+.buy-carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c3cdcc;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
+}
+
+.buy-carousel-dot--active {
+  background: #f57621;
+  transform: scale(1.2);
+}
+
+/* ==============================================
    RESPONSIVE
    ============================================== */
 
-/* ---------- Mobile carousel nav buttons ---------- */
-.buy-carousel-btn {
-  display: none; /* hidden by default (desktop) */
-}
-
+/* ---- Tablet ---- */
 @media (max-width: 1024px) {
   .buy-hero {
     flex-direction: column;
@@ -380,56 +463,24 @@
   }
 
   .buy-carousel-section {
-    padding: 2rem 0 4rem;
-    margin-top: 0;
+    padding: 2rem 0 3rem;
+    margin-block: 1rem;
   }
 
-  /* Wrapper becomes the positioning context for arrows */
-  .buy-carousel-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding: 0 1rem;
-  }
-
-  /* Viewport clips the track */
-  .buy-carousel-viewport {
-    overflow: hidden;
-    padding: 1.5rem 0;
-    max-width: 100%;
-    cursor: grab;
-    touch-action: pan-y;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  .buy-carousel-viewport:active {
-    cursor: grabbing;
-  }
-
-  /* Track becomes a flex row instead of grid */
   .buy-carousel-track {
-    display: flex !important;
-    justify-content: flex-start !important; /* overrides desktop center alignment, ensuring exact left placement */
-    grid-template-columns: unset !important;
-    gap: 20px !important;
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    width: 100%;
-    padding: 0 !important;
+    gap: 16px;
   }
 
-  /* Each slide fitting 2 items inside viewport to avoid oversized cards */
   .buy-carousel-slide {
-    flex: 0 0 calc(50% - 10px);
-    min-width: calc(50% - 10px);
-    max-width: calc(50% - 10px);
+    flex: 0 0 240px;
+    width: 240px;
+    height: 370px;
   }
 
   .buy-add-to-cart {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.9rem;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.85rem;
     gap: 0.5rem;
-    white-space: nowrap;
   }
 
   .buy-add-to-cart svg {
@@ -438,68 +489,14 @@
     flex-shrink: 0;
   }
 
-  /* --- Carousel nav buttons --- */
   .buy-carousel-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 42px;
     height: 42px;
     min-width: 42px;
-    border-radius: 50%;
-    background: #f57621;
-    color: #fff;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-    z-index: 5;
-    transition:
-      background 0.3s ease,
-      transform 0.2s ease,
-      opacity 0.3s ease;
-    flex-shrink: 0;
-  }
-
-  .buy-carousel-btn:hover {
-    background: rgba(0, 0, 0, 0.85);
-    border-color: rgba(255, 255, 255, 0.6);
-  }
-
-  .buy-carousel-btn:disabled {
-    opacity: 0.35;
-    pointer-events: none;
-  }
-
-  .buy-carousel-btn--left,
-  .buy-carousel-btn--right {
-    margin-inline: 0.5rem;
-  }
-
-  /* --- Dot indicators --- */
-  .buy-carousel-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.4rem;
-    margin-top: 1.2rem;
-  }
-
-  .buy-carousel-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #c3cdcc;
-    border: none;
-    cursor: pointer;
-    transition:
-      background 0.3s ease,
-      transform 0.2s ease;
-  }
-
-  .buy-carousel-dot--active {
-    background: #f57621;
-    transform: scale(1.2);
   }
 }
 
+/* ---- Small tablet / large phone ---- */
 @media (max-width: 768px) {
   .buy-hero {
     padding: 100px 4% 40px;
@@ -535,10 +532,38 @@
     padding: 0.65rem 0.8rem;
   }
 
+  .buy-carousel-track {
+    gap: 14px;
+  }
+
+  .buy-carousel-slide {
+    flex: 0 0 220px;
+    width: 220px;
+    height: 340px;
+    border-radius: 12px;
+  }
+
+  .buy-slide-image-wrap {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .product-info {
+    padding: 0.4rem 0.6rem 0;
+  }
+
+  .product-name {
+    font-size: 0.85rem;
+  }
+
+  .product-price {
+    font-size: 0.9rem;
+  }
+
   .buy-add-to-cart {
     padding: 0.5rem 0.6rem;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     gap: 0.4rem;
+    border-radius: 12px;
   }
 
   .buy-add-to-cart svg {
@@ -546,20 +571,12 @@
     height: 20px;
   }
 
-  .product-info {
-    padding: 0.4rem 0.1rem 0;
-  }
-  .product-name {
-    font-size: 0.8rem;
-  }
-  .product-price {
-    font-size: 0.85rem;
-  }
   .product-qty-btn {
     width: 30px;
     height: 30px;
     font-size: 1rem;
   }
+
   .product-qty-value {
     min-width: 24px;
     font-size: 0.8rem;
@@ -572,6 +589,7 @@
   }
 }
 
+/* ---- Mobile ---- */
 @media (max-width: 480px) {
   .buy-hero {
     padding: 90px 3.5% 30px;
@@ -600,39 +618,63 @@
     font-size: 0.88rem;
   }
 
+  .buy-carousel-section {
+    padding: 1rem 0 2rem;
+    margin-block: 0.5rem;
+  }
+
+  .buy-carousel-wrapper {
+    padding: 0 0.3rem;
+  }
+
   .buy-carousel-track {
-    width: 100%;
+    gap: 12px;
   }
 
   .buy-carousel-slide {
-    flex: 0 0 100%;
-    min-width: 100%;
-    max-width: 100%;
+    flex: 0 0 280px;
+    width: 280px;
+    height: 420px;
+    border-radius: 14px;
   }
 
-  .buy-add-to-cart {
-    padding: 0.7rem;
-    font-size: 0.8rem;
-    gap: 0.6rem;
+  .buy-slide-image-wrap {
+    border-radius: 14px 14px 0 0;
   }
+
+  .product-info {
+    padding: 0.5rem 0.7rem 0;
+  }
+
   .product-name {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
   }
+
   .product-price {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
   }
 
   .product-actions {
     gap: 0.4rem;
+    padding: 0.4rem 0.7rem 0.7rem;
   }
-  .product-qty-btn {
-    width: 26px;
-    height: 26px;
+
+  .buy-add-to-cart {
+    padding: 0.65rem;
     font-size: 0.85rem;
+    gap: 0.6rem;
+    border-radius: 14px;
   }
+
+  .product-qty-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
   .product-qty-value {
-    min-width: 20px;
-    font-size: 0.75rem;
+    min-width: 22px;
+    font-size: 0.78rem;
   }
 
   .buy-carousel-btn {

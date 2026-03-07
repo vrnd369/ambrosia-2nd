@@ -12,8 +12,7 @@ function getSupabaseAdmin() {
   return createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 }
 
-// Base columns only. Run supabase/migrations/20250305000002_add_shiprocket_tracking_columns.sql for awb_code, shipment_status
-const ORDER_COLUMNS = 'id,user_id,total_amount,status,created_at,shipping_address,phone,items';
+const ORDER_COLUMNS = 'id,user_id,total_amount,status,created_at,shipping_address,phone,items,awb_code,shipment_status';
 
 router.get('/', async (req, res) => {
   const admin = getSupabaseAdmin();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Eye from '../assets/eye.webp';
 import EyeBlink from '../assets/eye-blink.webp';
 
@@ -6,6 +6,8 @@ export default function EyeCursor() {
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [blink, setBlink] = useState(false);
   const [hide, setHide] = useState(false);
+  const hideRef = useRef(false);
+  hideRef.current = hide;
 
   useEffect(() => {
     const preload = new Image();
@@ -17,13 +19,21 @@ export default function EyeCursor() {
       );
     };
 
+    const keepEyeCursor = target => {
+      return target.closest('[data-cursor="eye"]') !== null;
+    };
+
     const moveHandler = e => {
       setPos({ x: e.clientX, y: e.clientY });
-      setHide(isInteractive(e.target));
+      const interactive = isInteractive(e.target);
+      const keepEye = keepEyeCursor(e.target);
+      const v = interactive && !keepEye;
+      hideRef.current = v;
+      setHide(v);
     };
 
     const blinkOnce = () => {
-      if (hide) return;
+      if (hideRef.current) return;
       setBlink(true);
       requestAnimationFrame(() => {
         setTimeout(() => setBlink(false), 150);
@@ -37,7 +47,7 @@ export default function EyeCursor() {
       window.removeEventListener('mousemove', moveHandler);
       window.removeEventListener('pointerdown', blinkOnce);
     };
-  }, [hide]);
+  }, []);
 
   return (
     <>

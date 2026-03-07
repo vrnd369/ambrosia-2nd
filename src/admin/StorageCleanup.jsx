@@ -20,6 +20,7 @@ export default function StorageCleanup() {
   const [usedPaths, setUsedPaths] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -84,6 +85,27 @@ export default function StorageCleanup() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (unusedFiles.length === 0) return;
+    if (!window.confirm(`Delete all ${unusedFiles.length} unused files? This cannot be undone.`)) return;
+    setDeletingAll(true);
+    try {
+      const paths = unusedFiles.map((f) => (typeof f === 'string' ? f : f.path));
+      const { error } = await supabase.storage.from(PRODUCT_IMAGES_BUCKET).remove(paths);
+      if (error) throw error;
+      setStorageFiles((prev) => prev.filter((f) => !paths.includes(typeof f === 'string' ? f : f.path)));
+      setUsedPaths((prev) => {
+        const next = new Set(prev);
+        paths.forEach((p) => next.delete(p));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.message || 'Failed to delete some or all files');
+    } finally {
+      setDeletingAll(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="admin-page">
@@ -97,9 +119,18 @@ export default function StorageCleanup() {
     <div className="admin-page">
       <div className="admin-header-row">
         <h1>Storage Cleanup</h1>
-        <button className="admin-btn" onClick={loadData} disabled={loading}>
-          Refresh
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="admin-btn" onClick={loadData} disabled={loading}>
+            Refresh
+          </button>
+          <button
+            className="admin-btn danger"
+            onClick={handleDeleteAll}
+            disabled={unusedFiles.length === 0 || deletingAll}
+          >
+            {deletingAll ? 'Deleting...' : 'Delete All'}
+          </button>
+        </div>
       </div>
       <p className="admin-storage-desc">
         Lists files in the <code>product-images</code> bucket and identifies those not referenced by any product.
@@ -144,7 +175,7 @@ export default function StorageCleanup() {
                       <button
                         className="admin-btn danger"
                         onClick={() => handleDelete(path)}
-                        disabled={deleting === path}
+                        disabled={deleting === path || deletingAll}
                       >
                         {deleting === path ? 'Deleting...' : 'Delete'}
                       </button>

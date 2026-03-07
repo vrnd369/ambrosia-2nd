@@ -17,7 +17,10 @@ SHIPROCKET_EMAIL=your-api-email@example.com
 SHIPROCKET_PASSWORD='your-api-password'
 SHIPROCKET_BASE_URL=https://apiv2.shiprocket.in
 SHIPROCKET_PICKUP_LOCATION=warehouse
+SHIPROCKET_PACKAGING_WEIGHT=0.5
 ```
+
+- **SHIPROCKET_PACKAGING_WEIGHT** (optional, default 0.5): Packaging weight in kg added to product weights for Shiprocket. Product weights come from the `products` table (Shipping Management).
 
 - Use **API User** email/password (Settings → API → Create API User), not main login.
 - For passwords with `$`, `&`, `*`, `!` — wrap in single quotes: `SHIPROCKET_PASSWORD='yourpass'`

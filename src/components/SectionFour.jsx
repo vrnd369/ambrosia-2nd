@@ -27,16 +27,18 @@ function SectionFour() {
 
   // Lazy-load the 22MB video only when section enters viewport
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || videoLoaded) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !videoLoaded) {
+        if (entry?.isIntersecting) {
           setVideoLoaded(true);
           observer.disconnect();
         }
       },
-      { rootMargin: '200px' } // Start loading 200px before visible
+      { rootMargin: '200px' }
     );
-    if (sectionRef.current) observer.observe(sectionRef.current);
+    observer.observe(el);
     return () => observer.disconnect();
   }, [videoLoaded]);
 
@@ -77,9 +79,9 @@ function SectionFour() {
       </div>
 
       <div className={`s4-floating-wrapper ${isFixed ? 'fixed' : 'absolute'}`}>
-        <a href="/buy" className="floating-shop-btn">
+        <a href="/buy" className="floating-shop-btn" data-cursor="eye">
           <img src={cartIcon} alt="Cart" className="cart-icon" loading="lazy" decoding="async" />
-          SHOP NOW
+          <span className="shop-text">SHOP NOW</span>
         </a>
         
         <a href="#" onClick={handleWhatsAppClick} className="floating-whatsapp" aria-label="Contact us on WhatsApp">

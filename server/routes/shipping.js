@@ -26,7 +26,14 @@ function sortPackIds(ids) {
 
 router.post('/calculate-shipping', async (req, res) => {
   const admin = getSupabaseAdmin();
-  if (!admin) return res.status(500).json({ error: 'Server misconfigured' });
+  if (!admin) {
+    console.error('Calculate-shipping: Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env');
+    return res.status(500).json({
+      success: false,
+      error: 'Server misconfigured',
+      message: 'Add SUPABASE_SERVICE_ROLE_KEY to .env (Supabase Dashboard → Settings → API → service_role)',
+    });
+  }
 
   const { productId, selectedPacks } = req.body;
   const packIds = Array.isArray(selectedPacks) ? selectedPacks : (productId ? [productId] : []);
@@ -75,7 +82,7 @@ router.post('/calculate-shipping', async (req, res) => {
     return res.json({ success: true, shippingCharge: maxCharge, source: 'max' });
   } catch (err) {
     console.error('Calculate shipping error:', err);
-    return res.status(500).json({ error: 'Server error', message: err?.message });
+    return res.status(500).json({ success: false, error: 'Server error', message: err?.message });
   }
 });
 

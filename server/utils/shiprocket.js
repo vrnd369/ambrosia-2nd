@@ -48,10 +48,14 @@ export async function getToken() {
   return cachedToken;
 }
 
+const PACKAGING_WEIGHT_KG = Number(process.env.SHIPROCKET_PACKAGING_WEIGHT) || 0.5;
+const MIN_WEIGHT_KG = 0.5;
+
 /**
- * Build Shiprocket adhoc order payload from frontend request
+ * Build Shiprocket adhoc order payload from frontend request.
+ * productWeights: { [productId]: weightKg } from DB; used for accurate total weight.
  */
-export function buildOrderPayload({ orderId, buyer, items, subTotal }) {
+export function buildOrderPayload({ orderId, buyer, items, subTotal, productWeights = {} }) {
   const { pickupLocation } = getConfig();
   const fullName = (buyer?.name || '').trim();
   const nameParts = fullName.split(/\s+/);
@@ -68,7 +72,11 @@ export function buildOrderPayload({ orderId, buyer, items, subTotal }) {
     hsn: 2202,
   }));
 
-  const totalWeight = Math.max(0.5, (items || []).reduce((sum, i) => sum + (i.quantity || 1), 0) * 0.3);
+  const productWeightTotal = (items || []).reduce((sum, i) => {
+    const w = i.weight != null && i.weight !== '' ? Number(i.weight) : (productWeights[i.id] ?? 1);
+    return sum + (w * (i.quantity || 1));
+  }, 0);
+  const totalWeight = Math.max(MIN_WEIGHT_KG, productWeightTotal + PACKAGING_WEIGHT_KG);
 
   return {
     order_id: orderId,

@@ -18,8 +18,8 @@ function SectionOne() {
       }}
     >
       <div className="zen-disclaimer">
-        Disclaimer: May cause an unusual state <br />
-        of focus and stillness.
+        <span className="zen-disclaimer-line">Disclaimer: May cause an unusual state</span>
+        <span className="zen-disclaimer-line">of focus and stillness.</span>
       </div>
       <a href="#eye" style={{ textDecoration: 'none' }}>
         <button className="zen-btn">Activate Zen Mode</button>

@@ -1,23 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { getAuthHeaders } from '../utils/apiAuth';
 import './Admin.css';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const headers = await getAuthHeaders();
+            if (!headers.Authorization) {
+                setError('Please log in to view users');
+                setUsers([]);
+                return;
+            }
+            const res = await fetch(`${API_BASE}/api/users`, { headers });
+            const json = await res.json().catch(() => ({}));
+            if (json.success && Array.isArray(json.data)) {
+                setUsers(json.data);
+            } else {
+                setError(json.error || 'Failed to load users');
+                setUsers([]);
+            }
+        } catch (err) {
+            setError(err?.message || 'Failed to load users');
+            setUsers([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchUsers();
     }, []);
-
-    const fetchUsers = async () => {
-        setLoading(true);
-        const { data, error } = await supabase.from('users').select('id,email,full_name,role,created_at').order('created_at', { ascending: false });
-        if (!error && data) {
-            setUsers(data);
-        }
-        setLoading(false);
-    };
 
     return (
         <div className="admin-page">
@@ -27,6 +47,7 @@ export default function UserManagement() {
                     {loading ? 'Refreshing...' : 'Refresh Users'}
                 </button>
             </div>
+            {error && <p className="admin-error-msg">{error}</p>}
 
             <div className="admin-table-container">
                 <table className="admin-table">
