@@ -47,12 +47,12 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
   const isDragging = useRef(false);
 
   // Calculate how many slides are visible based on viewport width
+  // Must match CSS breakpoints exactly
   const calcVisibleSlides = useCallback(() => {
     if (!viewportRef.current) return 4;
     const viewportWidth = viewportRef.current.offsetWidth;
     if (viewportWidth <= 480) return 1;
-    if (viewportWidth <= 640) return 2;
-    if (viewportWidth <= 900) return 3;
+    if (viewportWidth <= 1024) return 2;
     return 4;
   }, []);
 
@@ -67,10 +67,13 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
     return () => window.removeEventListener('resize', onResize);
   }, [calcVisibleSlides]);
 
-  // Determine if carousel is needed
+  // Determine if carousel is needed:
+  // - Always on tablet/mobile (visibleSlides < 4) since we show 2/1 cards at a time
+  // - On desktop only when products exceed 4
   const totalSlides = displayProducts.length;
-  const needsCarousel = totalSlides > visibleSlides;
-  const maxIndex = needsCarousel ? totalSlides - visibleSlides : 0;
+  const needsCarousel = visibleSlides < 4 ? totalSlides > visibleSlides : totalSlides > 4;
+  const effectiveVisible = needsCarousel ? visibleSlides : totalSlides;
+  const maxIndex = needsCarousel ? totalSlides - effectiveVisible : 0;
 
   // Clamp slideIndex when visibleSlides or totalSlides change
   useEffect(() => {
@@ -81,11 +84,11 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
   useEffect(() => {
     if (!trackRef.current || !viewportRef.current) return;
     const viewportWidth = viewportRef.current.offsetWidth;
-    const gap = 20; // match CSS gap
-    const slideWidth = (viewportWidth - gap * (visibleSlides - 1)) / visibleSlides;
+    const gap = parseInt(window.getComputedStyle(trackRef.current).gap) || 20;
+    const slideWidth = (viewportWidth - gap * (effectiveVisible - 1)) / effectiveVisible;
     const offset = slideIndex * (slideWidth + gap);
     trackRef.current.style.transform = `translateX(-${offset}px)`;
-  }, [slideIndex, visibleSlides]);
+  }, [slideIndex, effectiveVisible]);
 
   const goPrev = useCallback(() => {
     setSlideIndex(prev => Math.max(prev - 1, 0));
@@ -108,11 +111,11 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
     const currentX = e.touches ? e.touches[0].clientX : e.clientX;
     touchDeltaX.current = currentX - touchStartX.current;
     const viewportWidth = viewportRef.current.offsetWidth;
-    const gap = 20;
-    const slideWidth = (viewportWidth - gap * (visibleSlides - 1)) / visibleSlides;
+    const gap = parseInt(window.getComputedStyle(trackRef.current).gap) || 20;
+    const slideWidth = (viewportWidth - gap * (effectiveVisible - 1)) / effectiveVisible;
     const base = -(slideIndex * (slideWidth + gap));
     trackRef.current.style.transform = `translateX(${base + touchDeltaX.current}px)`;
-  }, [slideIndex, visibleSlides]);
+  }, [slideIndex, effectiveVisible]);
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) return;
@@ -127,13 +130,13 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
       // Snap back
       if (trackRef.current && viewportRef.current) {
         const viewportWidth = viewportRef.current.offsetWidth;
-        const gap = 20;
-        const slideWidth = (viewportWidth - gap * (visibleSlides - 1)) / visibleSlides;
+        const gap = parseInt(window.getComputedStyle(trackRef.current).gap) || 20;
+        const slideWidth = (viewportWidth - gap * (effectiveVisible - 1)) / effectiveVisible;
         const offset = slideIndex * (slideWidth + gap);
         trackRef.current.style.transform = `translateX(-${offset}px)`;
       }
     }
-  }, [goNext, goPrev, slideIndex, visibleSlides]);
+  }, [goNext, goPrev, slideIndex, effectiveVisible]);
 
   const handleAddToCart = product => {
     addToCart(product);
@@ -186,7 +189,7 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
             ref={trackRef}
             style={{
               // Each slide takes an equal fraction of the viewport
-              '--visible-slides': visibleSlides,
+              '--visible-slides': effectiveVisible,
             }}
           >
             {displayProducts.map((product, i) => {
