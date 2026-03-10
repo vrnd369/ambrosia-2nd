@@ -61,8 +61,8 @@ function SectionEleven() {
 
   const dotsCount = reviews.length;
 
-  const prev = () => setCurrent(c => Math.max(0, c - 1));
-  const next = () => setCurrent(c => Math.min(getMaxIndex(), c + 1));
+  const prev = () => setCurrent(c => (c === 0 ? getMaxIndex() : c - 1));
+  const next = () => setCurrent(c => (c >= getMaxIndex() ? 0 : c + 1));
 
   /** Compute the base translateX offset for a given slide index */
   const getBaseOffset = useCallback(() => {
@@ -138,8 +138,7 @@ function SectionEleven() {
       </h2>
 
       <div className="s11-carousel-wrapper">
-        {current > 0 && (
-          <button
+        <button
             type="button"
             className="carousel-btn s11-carousel-btn--left"
             onClick={prev}
@@ -155,7 +154,6 @@ function SectionEleven() {
               />
             </svg>
           </button>
-        )}
 
         <div
           className="s11-carousel-viewport"
@@ -201,8 +199,7 @@ function SectionEleven() {
           </div>
         </div>
 
-        {current < getMaxIndex() && (
-          <button
+        <button
             type="button"
             className="carousel-btn s11-carousel-btn--right"
             onClick={next}
@@ -218,7 +215,6 @@ function SectionEleven() {
               />
             </svg>
           </button>
-        )}
       </div>
 
       {dotsCount > 0 && (

@@ -91,11 +91,11 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
   }, [slideIndex, effectiveVisible]);
 
   const goPrev = useCallback(() => {
-    setSlideIndex(prev => Math.max(prev - 1, 0));
-  }, []);
+    setSlideIndex(prev => (prev === 0 ? maxIndex : prev - 1));
+  }, [maxIndex]);
 
   const goNext = useCallback(() => {
-    setSlideIndex(prev => Math.min(prev + 1, maxIndex));
+    setSlideIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
   }, [maxIndex]);
 
   // --- Touch / pointer handlers (swipe on mobile, drag on desktop) ---
@@ -166,7 +166,6 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
           <button
             className="buy-carousel-btn buy-carousel-btn--left"
             onClick={goPrev}
-            disabled={slideIndex === 0}
             aria-label="Previous product"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -285,7 +284,6 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
           <button
             className="buy-carousel-btn buy-carousel-btn--right"
             onClick={goNext}
-            disabled={slideIndex >= maxIndex}
             aria-label="Next product"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

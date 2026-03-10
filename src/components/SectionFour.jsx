@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import cartIcon from '../assets/cart-icon.svg';
 
 function SectionFour() {
@@ -7,6 +8,8 @@ function SectionFour() {
   const videoRef = useRef(null);
   const [isFixed, setIsFixed] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const navigate = useNavigate();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,6 +58,11 @@ function SectionFour() {
     }
   };
 
+  const handleShopClick = (e) => {
+    e.preventDefault();
+    navigate('/buy');
+  };
+
   return (
     <section className="s4-container" ref={sectionRef}>
       {videoLoaded && (
@@ -79,8 +87,25 @@ function SectionFour() {
       </div>
 
       <div className={`s4-floating-wrapper ${isFixed ? 'fixed' : 'absolute'}`}>
-        <a href="/buy" className="floating-shop-btn" data-cursor="eye">
-          <img src={cartIcon} alt="Cart" className="cart-icon" loading="lazy" decoding="async" />
+        <a 
+          href="/buy" 
+          className="floating-shop-btn" 
+          data-cursor="eye"
+          onClick={handleShopClick}
+          aria-label={`Shop Now${totalItems > 0 ? `, ${totalItems} item${totalItems > 1 ? 's' : ''} in cart` : ''}`}
+        >
+          <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+            <img src={cartIcon} alt="Cart" className="cart-icon" loading="lazy" decoding="async" />
+            {totalItems > 0 && (
+              <span
+                className="floating-cart-badge"
+                key={totalItems}
+                aria-hidden="true"
+              >
+                {totalItems}
+              </span>
+            )}
+          </span>
           <span className="shop-text">SHOP NOW</span>
         </a>
         
