@@ -7,12 +7,12 @@ import p4 from '../assets/p-44.webp';
 
 const DEFAULT_IMAGES = { 'p-1': p1, 'p-2': p2, 'p-3': p3, 'p-4': p4 };
 
-const isValidImageUrl = (url) => url && typeof url === 'string' && !url.startsWith('data:');
+const isValidImageUrl = url => url && typeof url === 'string' && !url.startsWith('data:');
 
 function ProductImage({ product }) {
   const [imgError, setImgError] = useState(false);
   const primary = product.image || product.image_url;
-  const src = isValidImageUrl(primary) && !imgError ? primary : (DEFAULT_IMAGES[product.id] || p1);
+  const src = isValidImageUrl(primary) && !imgError ? primary : DEFAULT_IMAGES[product.id] || p1;
   return (
     <img
       src={src}
@@ -99,23 +99,26 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
   }, [maxIndex]);
 
   // --- Touch / pointer handlers (swipe on mobile, drag on desktop) ---
-  const handleTouchStart = useCallback((e) => {
+  const handleTouchStart = useCallback(e => {
     isDragging.current = true;
     touchStartX.current = e.touches ? e.touches[0].clientX : e.clientX;
     touchDeltaX.current = 0;
     if (trackRef.current) trackRef.current.style.transition = 'none';
   }, []);
 
-  const handleTouchMove = useCallback((e) => {
-    if (!isDragging.current || !trackRef.current || !viewportRef.current) return;
-    const currentX = e.touches ? e.touches[0].clientX : e.clientX;
-    touchDeltaX.current = currentX - touchStartX.current;
-    const viewportWidth = viewportRef.current.offsetWidth;
-    const gap = parseInt(window.getComputedStyle(trackRef.current).gap) || 20;
-    const slideWidth = (viewportWidth - gap * (effectiveVisible - 1)) / effectiveVisible;
-    const base = -(slideIndex * (slideWidth + gap));
-    trackRef.current.style.transform = `translateX(${base + touchDeltaX.current}px)`;
-  }, [slideIndex, effectiveVisible]);
+  const handleTouchMove = useCallback(
+    e => {
+      if (!isDragging.current || !trackRef.current || !viewportRef.current) return;
+      const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+      touchDeltaX.current = currentX - touchStartX.current;
+      const viewportWidth = viewportRef.current.offsetWidth;
+      const gap = parseInt(window.getComputedStyle(trackRef.current).gap) || 20;
+      const slideWidth = (viewportWidth - gap * (effectiveVisible - 1)) / effectiveVisible;
+      const base = -(slideIndex * (slideWidth + gap));
+      trackRef.current.style.transform = `translateX(${base + touchDeltaX.current}px)`;
+    },
+    [slideIndex, effectiveVisible],
+  );
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) return;
@@ -167,7 +170,13 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
             aria-label="Previous product"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M15 18L9 12L15 6"
+                stroke="#fff"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         )}
@@ -203,7 +212,6 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
                   </div>
                   <div className="product-info">
                     <span className="product-name">{product.description}</span>
-                    <span className="product-price">₹{product.price.toFixed(2)}</span>
                   </div>
                   <div className="product-actions">
                     {qty > 0 && (
@@ -246,6 +254,7 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
                       {isAdded ? 'ADDED ✓' : 'ADD TO CART'}
                     </button>
                   </div>
+                  <span className="product-price">₹{product.price.toFixed(2)}</span>
                 </>
               );
 
@@ -257,7 +266,7 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
                       data-aos-delay={i * 150}
                       data-aos-duration="1000"
                       data-aos-easing="ease-out-cubic"
-                      data-aos-once="false"
+                      // data-aos-once="false"
                       style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
                     >
                       {slideContent}
@@ -280,7 +289,13 @@ export default function ProductCarousel({ withAos = false, wrapperStyle = {}, se
             aria-label="Next product"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M9 6L15 12L9 18" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M9 6L15 12L9 18"
+                stroke="#fff"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         )}

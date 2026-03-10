@@ -87,7 +87,7 @@ function SectionFive() {
   }, [getCardsVisible]);
 
   const prev = () => setCurrent((c) => Math.max(0, c - 1));
-  const next = () => setCurrent((c) => Math.min(getMaxIndex(), c + 1));
+  const next = () => setCurrent((c) => (c >= getMaxIndex() ? 0 : c + 1));
 
   const getCardWidth = useCallback(() => {
     if (!viewportRef.current) return 0;
@@ -268,30 +268,28 @@ function SectionFive() {
             ))}
           </div>
         </div>
-        {current < getMaxIndex() && (
-          <button
-            className="carousel-btn s5-carousel-btn s5-carousel-btn--right"
-            onClick={next}
-            aria-label="Next slide"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M9 18L15 12L9 6"
-                stroke="#fff"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        )}
+        <button
+          className="carousel-btn s5-carousel-btn s5-carousel-btn--right"
+          onClick={next}
+          aria-label="Next slide"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 18L15 12L9 6"
+              stroke="#fff"
+              strokeWidth="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
       <div className="s5-carousel-dots">
-        {ingredients.map((_, idx) => (
+        {Array.from({ length: getMaxIndex() + 1 }, (_, idx) => (
           <button
             key={idx}
             className={`s5-carousel-dot ${current === idx ? 's5-carousel-dot--active' : ''}`}
-            onClick={() => setCurrent(Math.min(idx, getMaxIndex()))}
+            onClick={() => setCurrent(idx)}
             aria-label={`Go to slide ${idx + 1}`}
           />
         ))}

@@ -11,6 +11,7 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import SectionTwelve from './components/SectionTwelve';
 import EyeCursor from './components/EyeCursor';
+import FloatingButtons from './components/FloatingButtons';
 
 // ── Lazy-loaded route-level pages ──
 const About = React.lazy(() => import('./pages/About'));
@@ -97,6 +98,7 @@ function App() {
       <CartProvider>
         <BrowserRouter>
           <ScrollToTop />
+          <FloatingButtons />
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route path="/" element={<Home />} />

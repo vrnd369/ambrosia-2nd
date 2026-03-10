@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import s7Left from '../assets/s-7-left.webp';
 import s7Right from '../assets/s-7-right.webp';
 import focusIcon from '../assets/focus.webp';
@@ -6,17 +8,43 @@ import clarityIcon from '../assets/clarity.webp';
 import calmnessIcon from '../assets/calmness.webp';
 import stillnessIcon from '../assets/stillness.webp';
 
+gsap.registerPlugin(ScrollTrigger);
+
 function SectionSeven() {
+  const sectionRef = useRef(null);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        textRef.current,
+        { y: 80 },
+        {
+          y: -80,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="section-seven split-layout">
+    <section className="section-seven split-layout" ref={sectionRef}>
       <div className="s7-left" data-aos="fade-right" data-aos-once="false">
         <img src={s7Left} alt="What's Inside Left" className="s7-bg" loading="lazy" decoding="async" />
       </div>
 
-      <div className="s7-right" data-aos="fade-left" data-aos-once="false">
+      <div className="s7-right" data-aos="fade-left">
         <img src={s7Right} alt="What's Inside Right" className="s7-bg" loading="lazy" />
 
-        <div className="s7-icons-container">
+        <div className="s7-icons-container" ref={textRef}>
           <div className="s7-title">
             <span className="s7-title-script">What's</span>
             <span className="s7-title-main">Inside</span>
